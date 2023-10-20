@@ -107,6 +107,7 @@ const update = async (req, res) => {
       message: "User updated successfully",
     });
   } catch (error) {
+    console.log(error)
     return res.status(500).json({ message: "Failed to update user", error: error.message });
   }
 };
@@ -126,6 +127,7 @@ const update = async (req, res) => {
         }
         return res.status(200).json(user);
       } catch (error) {
+        console.log(error)
         return res
           .status(500)
           .json({ message: "Failed to get user", error: error.message });

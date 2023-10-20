@@ -78,6 +78,9 @@ const signUp = async (req, res) => {
 // Controller function to handle user login
 const login = async (req, res) => {
   const { email, password } = req.body;
+  if (validateBody(req, res)) {
+   return;
+ }
   try {
     // Find the user by email
     const user = await User.findOne({ email });

@@ -63,7 +63,7 @@ router.delete(
 );
 
 //login user
-router.post("/login", login);
+router.post("/login",validationParam, login);
 
 //logout
 router.post("/logout", verifyToken, logout);
