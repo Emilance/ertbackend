@@ -4,7 +4,8 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 require("dotenv").config();
 const app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '10mb' })); 
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cors());
 const PORT = 5000 || process.env.PORT;
 //import routes
