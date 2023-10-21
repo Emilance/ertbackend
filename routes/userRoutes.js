@@ -66,6 +66,6 @@ router.delete(
 router.post("/login",validationParam, login);
 
 //logout
-router.post("/logout", verifyToken, logout);
+router.get("/logout", verifyToken, logout);
 
 module.exports = { router };
