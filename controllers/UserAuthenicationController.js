@@ -41,7 +41,7 @@ const signUp = async (req, res) => {
           // Create tokens
           const accessToken = generateToken(
             { user_id: user._id, email: user.email },
-            "15m"
+            "3d"
           );
           const refreshToken = generateToken(
             { user_id: user._id, email: user.email },
@@ -86,12 +86,12 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
     // Check if the user exists
     if (!user) {
-      return res.status(401).json({ message: "Authentication failed" });
+      return res.status(404).json({ message: "No User with Email found" });
     }
     // Verify the password
     const hashedpassword = await bcrypt.compare(password, user.password);
     if (!hashedpassword) {
-      return res.status(401).json({ message: "Authentication failed" });
+      return res.status(401).json({ message: "Incorrect Password" });
     }
     // Update the last_login timestamp
     user.last_login = new Date();

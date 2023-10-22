@@ -11,13 +11,14 @@ const PORT = 5000 || process.env.PORT;
 //import routes
 const userRoute = require("./routes/userRoutes").router
 const propertyRoute = require("./routes/propertyRoutes").router
-
+const notificationRoute = require("./routes/notificationRoutes").router
 
 
 
 //Routes
 app.use("/apis/users",  userRoute) ;
 app.use("/apis/properties",  propertyRoute) ;
+app.use("/apis/notifications",  notificationRoute) ;
 
 
 
