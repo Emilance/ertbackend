@@ -92,6 +92,67 @@ const showMyProperty = async (req, res)=> {
     }
 }
 
+const showProperty = async (req, res) => {
+  const user = req.user;
+
+  try {
+      const query = {};
+      // Check for query parameters and build the query object accordingly
+      if (req.query.apartment) {
+          query.apartment = { $regex: new RegExp(req.query.apartment, 'i') };
+      }
+      if (req.query.location) {
+          query.location = { $regex: new RegExp(req.query.location, 'i') };
+      }
+      if (req.query.minAmount) {
+          query.amount = { $gte: parseFloat(req.query.minAmount) };
+      }
+      if (req.query.maxAmount) {
+          if (!query.amount) query.amount = {};
+          query.amount.$lte = parseFloat(req.query.maxAmount);
+      }
+
+      const properties = await Property.find(query);
+
+      if (properties.length === 0) {
+          return res.status(404).json({ message: "Properties not found" });
+      }
+
+      res.status(200).json(properties);
+  } catch (error) {
+      return res.status(500).json({ message: "Error fetching properties", error: error.message });
+  }
+};
+
+
+
+const showAllProperties = async (req, res) => {
+  try {
+      const query = {};
+
+      // Check if 'search' parameter is provided in the query
+      if (req.query.search) {
+          const searchRegex = { $regex: new RegExp(req.query.search, 'i') };
+          query.$or = [
+              { apartment: searchRegex },
+              { location: searchRegex },
+          ];
+      }
+
+      const properties = await Property.find(query);
+
+      if (properties.length === 0) {
+          return res.status(404).json({ message: "Properties not found" });
+      }
+
+      res.status(200).json(properties);
+  } catch (error) {
+      return res.status(500).json({ message: "Error fetching properties", error: error.message });
+  }
+};
+
+
+
 
 
 const showSingleProperty = async (req, res)=> {
@@ -123,4 +184,4 @@ const deleteProperty = async (req, res) => {
 }
 
 
-module.exports = { createProperty ,showMyProperty , showSingleProperty , deleteProperty};
+module.exports = { createProperty ,showMyProperty , showAllProperties, showSingleProperty , deleteProperty};
