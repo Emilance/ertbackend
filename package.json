@@ -16,6 +16,5 @@
   "scripts": {
     "dev": "node index.js",
     "start": "nodemon index.js"
-
   }
 }

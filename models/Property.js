@@ -26,7 +26,6 @@ const propertySchema = new mongoose.Schema({
         school :Boolean,
         carPack: Boolean
     },
-
     owner :{
         type: mongoose.Schema.ObjectId,
         ref: "User",
@@ -36,10 +35,10 @@ const propertySchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
       },
-      updated_at: {
-        type: Date,
-        default: Date.now,
-      }
+    updated_at: {
+    type: Date,
+    default: Date.now,
+    }
 
 })
 

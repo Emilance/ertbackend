@@ -2,12 +2,12 @@ const express =require("express");
 
 const {body, param} = require("express-validator");
 const { verifyToken } = require("../middlewares/validateToken");
-const { createProperty, showMyProperty, showSingleProperty, deleteProperty, showAllProperties } = require("../controllers/PropertyController");
+const { createProperty, showMyProperty, deleteProperty, showAllProperties, getSingleProperty, showSingleProperty } = require("../controllers/PropertyController");
+
 
 
 const router = express.Router();
 const validationParam = [
-
     body('apartment')
     .trim()
     .isString()
@@ -25,9 +25,9 @@ const validationParam = [
 router.post("/", verifyToken,  validationParam, createProperty )
 
 router.get("/me", verifyToken, showMyProperty )
-router.get("/showAll", showAllProperties )
+router.get("/", showAllProperties )
+router.get("/:id", showSingleProperty)
 
-router.get("/:id", verifyToken, showSingleProperty )
 
 router.delete("/:id", verifyToken, deleteProperty )
 

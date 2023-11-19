@@ -12,13 +12,16 @@ const PORT = 5000 || process.env.PORT;
 const userRoute = require("./routes/userRoutes").router
 const propertyRoute = require("./routes/propertyRoutes").router
 const notificationRoute = require("./routes/notificationRoutes").router
-
+const OTPRoute = require("./routes/EditOTPRoutes").router
+const tourRoute = require("./routes/tourRoutes").router
 
 
 //Routes
 app.use("/apis/users",  userRoute) ;
 app.use("/apis/properties",  propertyRoute) ;
 app.use("/apis/notifications",  notificationRoute) ;
+app.use("/apis/otps",  OTPRoute) ;
+app.use("/apis/tours",  tourRoute) ;
 
 
 
