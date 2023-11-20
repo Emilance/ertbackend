@@ -124,8 +124,16 @@ const update = async (req, res) => {
         const user = await User.findById(userId).select("-password");
         if (!user) {
           return res.status(404).json({ message: "user not found" });
-        }
-        return res.status(200).json(user);
+        }   
+        const key = req.originalUrl || req.url;
+        const dataToCache = user
+        const cacheTimeInSeconds = 60;
+      
+        myCache.set(key, dataToCache, cacheTimeInSeconds);
+     
+
+
+        return res.status(200).json(dataToCache);
       } catch (error) {
         console.log(error)
         return res

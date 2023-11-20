@@ -5,6 +5,7 @@ const { signUp, logout, login, verifyOTP } = require("../controllers/UserAutheni
 const { getAll, show, destroy, update, showMyDetail } = require("../controllers/UserController");
 const { verifyToken } = require("../middlewares/validateToken");
 const upload = require("../middlewares/multer");
+const { checkCache } = require("../middlewares/cache");
 
 
 const router = express.Router();
@@ -35,7 +36,7 @@ router.post("/", validationParam, signUp);
 
 // //show all user
 router.get("/", verifyToken, getAll);
-router.get("/mydetails", verifyToken, showMyDetail);
+router.get("/mydetails", verifyToken, checkCache, showMyDetail);
 
 
 router.post('/verifyotp', verifyToken,
