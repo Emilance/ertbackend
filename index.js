@@ -15,8 +15,8 @@ const notificationRoute = require("./routes/notificationRoutes").router
 const OTPRoute = require("./routes/EditOTPRoutes").router
 const tourRoute = require("./routes/tourRoutes").router
 
-// const compression = require('compression');
-// app.use(compression());
+const compression = require('compression');
+app.use(compression());
 
 
 
