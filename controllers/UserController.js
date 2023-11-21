@@ -3,6 +3,12 @@ const { cloudinary } = require("../utils/cloudinary");
 const { validateBody } = require("../utils/utilityFunctions");
 
 
+const express = require('express');
+const NodeCache = require('node-cache');
+
+const app = express();
+const myCache = new NodeCache();
+
 
 //Controler function to get all users
 const getAll = async (req, res) => {
