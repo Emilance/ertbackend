@@ -27,8 +27,6 @@ const validationParam = [
   body("bankDetails.bankName").optional().isString(),
   body("bankDetails.acctName").optional().isString(),
   body("bankDetails.acctNumber").optional().isNumeric(),
-
-
 ];
 
 //store user

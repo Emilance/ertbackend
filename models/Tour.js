@@ -24,6 +24,10 @@ const tourSchema = new mongoose.Schema({
         ref: "Property",
         required: true,
     },
+    paid: {
+        type:Boolean,
+        default : false
+    },
     created_at: {
         type: Date,
         default: Date.now,

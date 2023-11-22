@@ -14,6 +14,8 @@ const propertyRoute = require("./routes/propertyRoutes").router
 const notificationRoute = require("./routes/notificationRoutes").router
 const OTPRoute = require("./routes/EditOTPRoutes").router
 const tourRoute = require("./routes/tourRoutes").router
+const paymentRoute = require("./routes/paymentRoutes").router
+
 
 const compression = require('compression');
 app.use(compression());
@@ -26,6 +28,8 @@ app.use("/apis/properties",  propertyRoute) ;
 app.use("/apis/notifications",  notificationRoute) ;
 app.use("/apis/otps",  OTPRoute) ;
 app.use("/apis/tours",  tourRoute) ;
+app.use("/apis/payments", paymentRoute)
+
 
 
 
