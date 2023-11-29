@@ -46,7 +46,7 @@ const deleteNotification = async (req, res) => {
     try {
          const deletedNotification = await  Notification.findByIdAndDelete(notificationiId)
          if(!deletedNotification) {
-            res.status(404).json({message :"Notification not found"})
+           return res.status(404).json({message :"Notification not found"})
          }
          res.status(200).json({message : "Notification deleted successfully"})
     } catch (error) {

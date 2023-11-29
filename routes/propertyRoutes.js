@@ -2,7 +2,7 @@ const express =require("express");
 
 const {body, param} = require("express-validator");
 const { verifyToken } = require("../middlewares/validateToken");
-const { createProperty, showMyProperty, deleteProperty, showAllProperties, getSingleProperty, showSingleProperty } = require("../controllers/PropertyController");
+const { createProperty, showMyProperty, deleteProperty, showAllProperties, getSingleProperty, showSingleProperty, updateProperty } = require("../controllers/PropertyController");
 
 
 
@@ -28,6 +28,7 @@ router.get("/me", verifyToken, showMyProperty )
 router.get("/", showAllProperties )
 router.get("/:id", showSingleProperty)
 
+router.put("/:id", verifyToken, updateProperty )
 
 router.delete("/:id", verifyToken, deleteProperty )
 

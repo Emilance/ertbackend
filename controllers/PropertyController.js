@@ -48,7 +48,7 @@ const createProperty = async (req, res) => {
     mainFeatures,
     owner : req.user.user_id
   });
-
+scr
   // Create a new Date object to get the current date and time
 const currentDate = new Date();
 
@@ -220,7 +220,7 @@ const deleteProperty = async (req, res) => {
   try {
        const deletedProperty = await  Property.findByIdAndDelete(propertyId)
        if(!deletedProperty) {
-          res.status(404).json({message :"Property not found"})
+        return   res.status(404).json({message :"Property not found"})
        }
        res.status(200).json({message : "Property deleted successfully"})
   } catch (error) {
@@ -228,5 +228,61 @@ const deleteProperty = async (req, res) => {
   }
 }
 
+const updateProperty = async (req, res) => {
+  // Validate the incoming request using Express Validator
+  if (validateBody(req, res)) {
+    return;
+  }
 
-module.exports = { createProperty ,showMyProperty , showAllProperties, showSingleProperty , deleteProperty};
+  // Extract property ID from the request parameters
+  const propertyId = req.params.propertyId;
+
+  // Extract data from the request
+  const { apartment, amount, images, location, about, features, mainFeatures } = req.body;
+
+  // Save images to Cloudinary and get their links
+  const imageUrls = [];
+
+  if (images && images.length > 0) {
+    for (const image of images) {
+      const cloudinaryResponse = await cloudinary.uploader.upload(image, (err, result) => {
+        if (err) {
+          return res.status(500).json({ message: "Image upload failed", err });
+        }
+      });
+      imageUrls.push(cloudinaryResponse.secure_url);
+    }
+  }
+
+  // Update the existing Property instance
+  try {
+    const existingProperty = await Property.findById(propertyId);
+
+    if (!existingProperty) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+
+    existingProperty.apartment = apartment;
+    existingProperty.images = imageUrls;
+    existingProperty.amount = amount;
+    existingProperty.location = location;
+    existingProperty.about = about;
+    existingProperty.features = features;
+    existingProperty.mainFeatures = mainFeatures;
+
+    // Assuming you want to update the owner as well
+    existingProperty.owner = req.user.user_id;
+
+    // Save the updated property to the database
+    await existingProperty.save();
+
+    return res.status(200).json({ message: "Property updated successfully", property: existingProperty });
+  } catch (error) {
+    return res.status(500).json({ message: "Error updating the property", error: error.message });
+  }
+};
+
+
+
+
+module.exports = { createProperty ,showMyProperty , updateProperty , showAllProperties, showSingleProperty , deleteProperty};
