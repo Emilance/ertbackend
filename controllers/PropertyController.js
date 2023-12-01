@@ -228,14 +228,38 @@ const deleteProperty = async (req, res) => {
   }
 }
 
+const getPropertyByQuery = async (req, res) => {
+  try {
+    const { houseType, priceRange } = req.body;
+
+    // Construct the query based on the request body
+    const query = {
+      apartment: houseType,
+      amount: {
+        $gte: parseInt(priceRange.minPrice),
+        $lte: parseInt(priceRange.maxPrice),
+      },
+    };
+
+    // Perform the database query
+    const properties = await Property.find(query);
+
+    // Return the results
+    res.status(200).json({ properties });
+  } catch (error) {
+    console.error('Error fetching properties:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
 const updateProperty = async (req, res) => {
-  // Validate the incoming request using Express Validator
   if (validateBody(req, res)) {
     return;
   }
 
   // Extract property ID from the request parameters
-  const propertyId = req.params.propertyId;
+  const propertyId = req.params.id;
 
   // Extract data from the request
   const { apartment, amount, images, location, about, features, mainFeatures } = req.body;
@@ -270,19 +294,18 @@ const updateProperty = async (req, res) => {
     existingProperty.features = features;
     existingProperty.mainFeatures = mainFeatures;
 
-    // Assuming you want to update the owner as well
-    existingProperty.owner = req.user.user_id;
+
 
     // Save the updated property to the database
     await existingProperty.save();
 
     return res.status(200).json({ message: "Property updated successfully", property: existingProperty });
   } catch (error) {
-    return res.status(500).json({ message: "Error updating the property", error: error.message });
+    return res.status(500).json({ error: "Error updating the property", message: error.message });
   }
 };
 
 
 
 
-module.exports = { createProperty ,showMyProperty , updateProperty , showAllProperties, showSingleProperty , deleteProperty};
+module.exports = {getPropertyByQuery, createProperty ,showMyProperty , updateProperty , showAllProperties, showSingleProperty , deleteProperty};
