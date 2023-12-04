@@ -40,11 +40,11 @@ const signUp = async (req, res) => {
         
           // Create tokens
           const accessToken = generateToken(
-            { user_id: user._id, email: user.email },
+            { user_id: user._id, email: user.email , role: user.role },
             "3d"
           );
           const refreshToken = generateToken(
-            { user_id: user._id, email: user.email },
+            { user_id: user._id, email: user.email , role: user.role },
             "7d"
           );
        
@@ -57,6 +57,7 @@ const signUp = async (req, res) => {
              user,
              accessToken,
              refreshToken,
+             otptime : resp.otpData.createdAt,
              role,
              message: "User created successfully",
           })
@@ -98,11 +99,11 @@ const login = async (req, res) => {
     await user.save();
     // Create tokens
     const accessToken = generateToken(
-      { user_id: user._id, email: user.email },
+      { user_id: user._id, email: user.email, role: user.role },
       "7d"
     );
     const refreshToken = generateToken(
-      { user_id: user._id, email: user.email },
+      { user_id: user._id, email: user.email , role: user.role},
       "7d"
     );
     return res.status(200).json({
@@ -189,12 +190,37 @@ const verifyOTP = async (req, res) => {
    
     }
  }
- 
+  
+
+ const resendAcctOTP = async (req, res) => {
+   const {user_id} = req.user
+      try {
+         const user = await User.findById(user_id) 
+         const userRecords = await UserOTPVerification.find({ userId: user_id })
+         if(userRecords){
+            await UserOTPVerification.findByIdAndDelete(userRecords[0]._id);
+         }
+         const resp = await sendOTPVerificationMail(user, res)
+         if(resp.status == "FAILED"){
+           console.log(resp.message)
+           return res.status(500).json({message : resp.message})
+         }
+         res.status(200).json({
+            otptime : resp.otpData.createdAt,
+            message: "OTP resent successfully"
+         })
+      } catch (error) {
+         return res
+         .status(500)
+         .json({ message: error.message, error: "verification failed" });
+      }
+
+ }
 
 
 
 
-module.exports = { login, logout ,signUp, verifyOTP };
+module.exports = { login, logout ,signUp, verifyOTP ,resendAcctOTP };
 
 const sendOTPVerificationMail = async ({ _id, email }, res) => {
 
@@ -214,7 +240,7 @@ const sendOTPVerificationMail = async ({ _id, email }, res) => {
  
        const hashedOTP = await bcrypt.hash(stringOTP, 10)
  
-       await UserOTPVerification.create({
+      const otpData = await UserOTPVerification.create({
           userId: _id,
           otp: hashedOTP,
           createdAt: Date.now(),
@@ -224,7 +250,8 @@ const sendOTPVerificationMail = async ({ _id, email }, res) => {
        await transporter.sendMail(mailOptions);
        return {
           status: "PENDING",
-          message: " verification otp email sent",
+          message: "verification otp email sent",
+          otpData,
           data: {
              userId: _id,
              email

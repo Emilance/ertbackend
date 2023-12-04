@@ -1,7 +1,7 @@
 const express = require("express");
 
 const { body, param } = require("express-validator");
-const { signUp, logout, login, verifyOTP } = require("../controllers/UserAuthenicationController");
+const { signUp, logout, login, verifyOTP, resendAcctOTP } = require("../controllers/UserAuthenicationController");
 const { getAll, show, destroy, update, showMyDetail } = require("../controllers/UserController");
 const { verifyToken } = require("../middlewares/validateToken");
 const upload = require("../middlewares/multer");
@@ -36,6 +36,7 @@ router.post("/", validationParam, signUp);
 router.get("/", verifyToken, getAll);
 router.get("/mydetails", verifyToken, checkCache, showMyDetail);
 
+router.get("/resendotp", verifyToken, resendAcctOTP);
 
 router.post('/verifyotp', verifyToken,
 [ body("otp")
@@ -53,7 +54,7 @@ router.get(
 
 router.put('/', verifyToken,   upload.single("profilePicture"), update)
 
-// //destroy user
+//destroy user
 router.delete(
   "/:id",
   verifyToken,
@@ -66,5 +67,6 @@ router.post("/login",validationParam, login);
 
 //logout
 router.get("/logout", verifyToken, logout);
+
 
 module.exports = { router };

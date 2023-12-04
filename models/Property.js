@@ -31,6 +31,11 @@ const propertySchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
+    status :{
+        type:String,
+        enum:["free", "occupied"],
+        default: "free"
+    },
     created_at: {
         type: Date,
         default: Date.now,

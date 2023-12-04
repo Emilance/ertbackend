@@ -12,9 +12,11 @@ const User = require("../models/User");
 const reqOTP = async(req, res) =>{
    const {user_id, email } = req.user
    try {
-    const OTPresp =await sendOTPVerificationMail({_id : user_id , email}, res)
+    const OTPresp  =await sendOTPVerificationMail({_id : user_id , email}, res)
     res.status(200).json({
-      message:"Email Sent successfully"
+      message:"Email Sent successfully",
+      otptime : OTPresp.otpData.createdAt,
+
     })
    } catch (error) {
       return res
@@ -44,7 +46,7 @@ const sendOTPVerificationMail = async ({ _id, email }, res) => {
 
        const hashedOTP = await bcrypt.hash(stringOTP, 10)
  
-       await UserOTPVerification.create({
+      const otpData =  await UserOTPVerification.create({
           userId: _id,
           otp: hashedOTP,
           createdAt: Date.now(),
@@ -54,6 +56,7 @@ const sendOTPVerificationMail = async ({ _id, email }, res) => {
        return {
           status: "PENDING",
           message: " verification otp email sent",
+          otpData,
           data: {
              userId: _id,
              email
