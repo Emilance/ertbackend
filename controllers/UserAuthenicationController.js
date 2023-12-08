@@ -179,16 +179,16 @@ const verifyOTP = async (req, res) => {
        } else {
           const userRecords = await UserOTPVerification.find({ userId: userid })
           if (userRecords <= 0) {
-             throw new Error("User doesn't exist")
+            return res.status(404).json({ message: "OTP doesn't exist"});
           } else {
              const { expiresAt } = userRecords[0]
              const hashedOTP = userRecords[0].otp
              if (expiresAt < Date.now()) {
-                throw new Error("otp has expired try to resend")
+               return res.status(400).json({ message: "otp has expired try to resend" });
              } else {
                 const validatedOTP = await bcrypt.compare(otp, hashedOTP)
                 if (!validatedOTP) {
-                   throw new Error("Enter  a valid otp")
+                  return res.status(400).json({ message: "Enter  a valid otp" });
                 } else {
                    await User.updateOne({ _id: userid }, { emailVerified: true })
                    await UserOTPVerification.findByIdAndDelete(userRecords[0]._id);
@@ -216,7 +216,8 @@ const verifyOTP = async (req, res) => {
       try {
          const user = await User.findById(user_id) 
          const userRecords = await UserOTPVerification.find({ userId: user_id })
-         if(userRecords){
+         console.log(userRecords)
+         if(userRecords  && userRecords.length > 0){
             await UserOTPVerification.findByIdAndDelete(userRecords[0]._id);
          }
          const resp = await sendOTPVerificationMail(user, res)
@@ -229,6 +230,7 @@ const verifyOTP = async (req, res) => {
             message: "OTP resent successfully"
          })
       } catch (error) {
+         console.log(error.message)
          return res
          .status(500)
          .json({ message: error.message, error: "verification failed" });

@@ -98,11 +98,11 @@ const verifyOTP = async (req, res) => {
               } else {
                  const validatedOTP = await bcrypt.compare(otp, hashedOTP)
                  if (!validatedOTP) {
-                    throw new Error("Enter  a valid otp")
+                     throw new Error("Enter  a valid otp")
                  } else {
                     await User.updateOne({ _id: userid }, { emailVerified: true })
                     await UserOTPVerification.findByIdAndDelete(userRecords[0]._id);
-                    res.status(202).json({
+                     res.status(202).json({
                        status: "SUCCESS",
                        message: "User email verified",
                        status_code: 200
