@@ -8,6 +8,25 @@ const { transporter } = require("../utils/nodemailer.config");
 require('dotenv').config()
 
 
+// const createAdmin = async (req, res) => {
+
+
+//    try {
+//         let password = "afolabi123"
+//    const encryptedPassword = await bcrypt.hash(password, 10)
+
+//    const user = await User.create({
+//      role:'admin',
+//      email: " afolabidave9@gmail.com",
+//      password: encryptedPassword
+//   })
+//    res.send("api is  working perfectly");
+//    } catch (error) {
+      
+//    }
+ 
+//  }
+ 
 
 
 

@@ -13,7 +13,7 @@ const myCache = new NodeCache();
 //Controler function to get all users
 const getAll = async (req, res) => {
     try {
-      const users = await User.find();
+      const users = await User.find().select('-password -created_at -updated_at');
       res.status(200).send(users);
     } catch (error) {
       console.log(error);
@@ -175,6 +175,9 @@ const update = async (req, res) => {
         .json({ message: "Failed to delete user", error: error.message });
     }
   };
+
+
+  
   
   module.exports = {
     getAll,

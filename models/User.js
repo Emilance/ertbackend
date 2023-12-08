@@ -25,8 +25,11 @@ const userSchema = new mongoose.Schema({
   },
   role:{
     type: String,
-    enum:["landlord", "student" ],
+    enum:["landlord", "student", "admin" ],
     required:true
+  },
+  admin: {
+    level: { type: Number, default: null, min: 1, max: 3 }
   },
   password:{
     type:String,

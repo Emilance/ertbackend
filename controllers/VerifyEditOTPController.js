@@ -35,7 +35,7 @@ const sendOTPVerificationMail = async ({ _id, email }, res) => {
        //Generate token
        const otp = Math.floor(10000 + Math.random() * 90000)
        const stringOTP = otp.toString()
-       const mailOptions = {
+       const mailOptions = {        
           from: process.env.AUTH_EMAIL,
           to: email,
           subject: 'Verify your email',
@@ -68,8 +68,7 @@ const sendOTPVerificationMail = async ({ _id, email }, res) => {
        return {
           status: "FAILED",
           message: error.message
-       }
-    
+       }    
     }
  }
 

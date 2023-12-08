@@ -33,7 +33,7 @@ const validationParam = [
 router.post("/", validationParam, signUp);
 
 // //show all user
-router.get("/", verifyToken, getAll);
+router.get("/", getAll);
 router.get("/mydetails", verifyToken, checkCache, showMyDetail);
 
 router.get("/resendotp", verifyToken, resendAcctOTP);
