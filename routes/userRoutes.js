@@ -31,6 +31,8 @@ const validationParam = [
 
 //store user
 router.post("/", validationParam, signUp);
+router.post("/admin", verifyOTP, signUp);
+
 
 // //show all user
 router.get("/", getAll);

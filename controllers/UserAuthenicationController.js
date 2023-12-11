@@ -93,6 +93,72 @@ const signUp = async (req, res) => {
 
 
 
+ //Controller function to  signup new Admin
+const createAdmin = async (req, res) => {
+   //get andd validate user input
+   const { email, role, password, adminLevel } = req.body
+   if (validateBody(req, res)) {
+       return;
+     }
+   try {
+
+      //check if user already exist
+      const existingUser = await User.findOne({ email })
+      if (existingUser) {
+         // console.log(existingUser)
+         return res.status(409).json({message :"User with this email already exist"})
+      } else {
+
+
+         //Encrypt user password
+         const encryptedPassword = await bcrypt.hash(password, 10)
+
+         //add user to DB
+         const user = await User.create({
+            role,
+            email: email.toLowerCase(),
+            password: encryptedPassword,
+            admin :{
+               level : adminLevel
+            }
+         })
+       
+         // Create tokens
+         const accessToken = generateToken(
+           { user_id: user._id, email: user.email , role: user.role },
+           "3d"
+         );
+         const refreshToken = generateToken(
+           { user_id: user._id, email: user.email , role: user.role },
+           "7d"
+         );
+      
+         const resp = await sendOTPVerificationMail(user, res)
+         if(resp.status == "FAILED"){
+           console.log(resp.message)
+           return res.status(500).json({message : resp.message})
+         }
+         res.status(201).json({
+            user,
+            accessToken,
+            refreshToken,
+            otptime : resp.otpData.createdAt,
+            role,
+            message: "Admin created successfully",
+         })
+      }
+
+   } catch (error) {
+       return res
+       .status(500)
+       .json({ message: "sign up failed", error: error.message });
+   }
+   
+}
+
+
+
+
 
 
 // Controller function to handle user login
@@ -241,7 +307,7 @@ const verifyOTP = async (req, res) => {
 
 
 
-module.exports = { login, logout ,signUp, verifyOTP ,resendAcctOTP };
+module.exports = { login, logout ,signUp, verifyOTP ,resendAcctOTP , createAdmin};
 
 const sendOTPVerificationMail = async ({ _id, email }, res) => {
 

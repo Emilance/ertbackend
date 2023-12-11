@@ -10,7 +10,6 @@ export const sendEmail = async ({ email }, res) => {
           subject: 'Verify your email',
           html: `<p>Enter <b>${otp}</b> in your easyrent App and complete your verification</p> 
           <p>Note: This OTP will expire in the next 1 hours</p>`
- 
        }
  
  
