@@ -2,12 +2,87 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const { Server } = require("socket.io");
+
 require("dotenv").config();
+
+
+
 const app = express();
+app.use(cors());
+
+const server = require("http").createServer(app)
+
+ const io = new Server(server,  
+  {
+    cors:{
+      origin:"*",
+      credentials : true
+    } 
+  }
+  );
+
+  let onlineUser= []
+
+io.on("connection", (socket) => {
+ 
+  console.log("new connection" , socket.id)
+  
+  //listen to connection
+
+  socket.on("addNewUser", (userId) => {
+   !onlineUser.some(user => user.userId === userId)  &&
+      onlineUser.push({
+      userId,
+      socketId: socket.id
+     }) 
+      console.log(onlineUser)
+      io.emit("getOnlineUser", onlineUser)
+  })
+
+   //send medssage
+   socket.on("sendMessage", (message) => {
+      const user = onlineUser.find(user => user.userId === message.recipientId)
+      if(user){
+          io.to(user.socketId).emit("getMessage", message)
+      }
+  })
+
+
+  //typing effect 
+  socket.on("typing", (userd) => {
+    let user = onlineUser.find(user => user.userId === userd.recipientId)
+    
+    if(user){
+        io.to(user.socketId).emit("userTyping", user)
+    }
+ })
+
+ socket.on("stop-typing", (userd) => {
+  let user = onlineUser.find(user => user.userId === userd.recipientId)
+  if(user){
+      io.to(user.socketId).emit("userStopTyping", user)
+  }
+
+})
+
+
+  socket.on("disconnect", ()=> {
+      onlineUser = onlineUser.filter(user => user.socketId !== socket.id)
+ 
+      io.emit("getOnlineUser", onlineUser)
+
+  })
+
+});
+
+  module.exports = {io}
+
 app.use(bodyParser.json({ limit: '50mb' })); 
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
-app.use(cors());
+
 const PORT = 5000 || process.env.PORT;
+
 //import routes
 const userRoute = require("./routes/userRoutes").router
 const propertyRoute = require("./routes/propertyRoutes").router
@@ -16,6 +91,11 @@ const OTPRoute = require("./routes/EditOTPRoutes").router
 const tourRoute = require("./routes/tourRoutes").router
 const paymentRoute = require("./routes/paymentRoutes").router
 const ForgetPassword = require("./routes/forgetPasswordRoutes").router
+const chatRoutes =  require("./routes/ChatRoutes").router
+const messageRoutes =  require("./routes/MessagesRoutes").router
+
+
+
 
 const compression = require('compression');
 const User = require("./models/User");
@@ -34,6 +114,9 @@ app.use("/apis/otps",  OTPRoute) ;
 app.use("/apis/tours",  tourRoute) ;
 app.use("/apis/payments", paymentRoute)
 app.use("/apis/forgetpassword", ForgetPassword)
+app.use("/apis/chats", chatRoutes)
+app.use("/apis/messages", messageRoutes)
+
 
 
 
@@ -46,7 +129,7 @@ mongoose
     useNewUrlParser: true,
   })
   .then(() => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`EasyRent backend listening on port ${PORT}`);
     });
   })

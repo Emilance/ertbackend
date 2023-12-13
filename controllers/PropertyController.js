@@ -199,45 +199,6 @@ const showAllProperties = async (req, res) => {
 
 
 
-// temporary  location route
-
-// const showpropLocation = async (req, res) => {
-//   try {
-//     const query = {};
-
-//     // Check if 'search' parameter is provided in the query
-//     if (req.query.search) {
-//       const searchRegex = { $regex: new RegExp(req.query.search, 'i') };
-//       query.$or = [
-//         { apartment: searchRegex },
-//         { location: searchRegex },
-//       ];
-//     }
-
-//     // Check if the result is already in the cache
-//     const cacheKey = JSON.stringify(req.query.search);
-//     const cachedProperties = myCache.get(cacheKey);
-
-//     if (cachedProperties) {
-//       // If data is found in cache, send it directly
-//       return res.status(200).json(cachedProperties);
-//     }
-
-//     // If data is not found in cache, fetch from the database
-//     const properties = await Property.find(query);
-
-//     if (properties.length === 0) {
-//       return res.status(404).json({ message: "Properties not found" });
-//     }
-
-//     // Store the result in the cache
-//     myCache.set(cacheKey, properties, 60); // Adjust the cache time as needed
-
-//     res.status(200).json(properties);
-//   } catch (error) {
-//     return res.status(500).json({ message: "Error fetching properties", error: error.message });
-//   }
-// };
 
 
 
