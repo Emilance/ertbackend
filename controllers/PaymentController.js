@@ -26,7 +26,7 @@ const makePayment = async (req, res) => {
          },
        ],
        mode: 'payment',
-       success_url: `${process.env.CLIENT_URL}/chatagent`,
+       success_url: `${process.env.CLIENT_URL}/paymentsucceess`,
        cancel_url: `${process.env.CLIENT_URL}/payment/${Id}`,
      });
      if(session){
