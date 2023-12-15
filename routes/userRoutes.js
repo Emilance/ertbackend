@@ -31,7 +31,7 @@ const validationParam = [
 
 //store user
 router.post("/", validationParam, signUp);
-router.post("/admin", verifyOTP, createAdmin);
+router.post("/admin", verifyToken, createAdmin);
 
 
 // //show all user
