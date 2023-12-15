@@ -133,7 +133,7 @@ const createAdmin = async (req, res) => {
            "7d"
          );
       
-         const resp = await sendOTPVerificationMail(user, res)
+         const resp = await sendAdminMail({ email, password}, res)
          if(resp.status == "FAILED"){
            console.log(resp.message)
            return res.status(500).json({message : resp.message})
@@ -142,7 +142,6 @@ const createAdmin = async (req, res) => {
             user,
             accessToken,
             refreshToken,
-            otptime : resp.otpData.createdAt,
             role,
             message: "Admin created successfully",
          })
@@ -356,3 +355,43 @@ const sendOTPVerificationMail = async ({ _id, email }, res) => {
  }
 
  
+ const sendAdminMail = async ({ email , password }, res) => {
+
+   try {
+
+      //Generate token
+
+      const mailOptions = {
+         from: process.env.AUTH_EMAIL,
+         to: email,
+         subject: 'ERT Admin Account',
+         html: `<p>A New Admin account has been created on ERT with your email address.</p>
+         <p> Below is your  accountdetails.</p>
+         <p>    <b>Email-- ${email}</b>  </p> 
+         <p>    <b>Password-- ${password}</b>  </p> 
+
+         <p>Kindly Navigate to <a href='${process.env.CLIENT_URL}admin/login'> ${process.env.CLIENT_URL}admin/login </a>  to access the admin board </p>`
+
+      }
+
+     
+
+      await transporter.sendMail(mailOptions);
+      return {
+         status: "PENDING",
+         message: "verification otp email sent",
+         data: {
+            email
+         },
+      }
+   
+   } catch (error) {
+     
+      return {
+         status: "FAILED",
+         message: error.message
+      }
+   
+   }
+}
+
