@@ -96,7 +96,7 @@ const signUp = async (req, res) => {
  //Controller function to  signup new Admin
 const createAdmin = async (req, res) => {
    //get andd validate user input
-   const { email, role, password, adminLevel } = req.body
+   const { email, role, password, adminLevel ,firstName } = req.body
    if (validateBody(req, res)) {
        return;
      }
@@ -115,7 +115,7 @@ const createAdmin = async (req, res) => {
 
          //add user to DB
          const user = await User.create({
-            role,
+            role, firstName,
             email: email.toLowerCase(),
             password: encryptedPassword,
             admin :{

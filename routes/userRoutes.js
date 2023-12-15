@@ -1,7 +1,7 @@
 const express = require("express");
 
 const { body, param } = require("express-validator");
-const { signUp, logout, login, verifyOTP, resendAcctOTP } = require("../controllers/UserAuthenicationController");
+const { signUp, logout, login, verifyOTP, resendAcctOTP, createAdmin } = require("../controllers/UserAuthenicationController");
 const { getAll, show, destroy, update, showMyDetail } = require("../controllers/UserController");
 const { verifyToken } = require("../middlewares/validateToken");
 const upload = require("../middlewares/multer");
@@ -31,7 +31,7 @@ const validationParam = [
 
 //store user
 router.post("/", validationParam, signUp);
-router.post("/admin", verifyOTP, signUp);
+router.post("/admin", verifyOTP, createAdmin);
 
 
 // //show all user
