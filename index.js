@@ -45,7 +45,20 @@ io.on("connection", (socket) => {
       const user = onlineUser.find(user => user.userId === message.recipientId)
       if(user){
           io.to(user.socketId).emit("getMessage", message)
-      }
+          io.to(user.socketId).emit("getNotification", {
+            senderId : message.senderId,
+            isRead : false,
+            date: new Date(),
+          });
+         
+          // console.log({
+          //   senderId : message.senderId,
+          //   isRead : false,
+          //   date: new Date(),
+          // })
+        }
+
+
   })
 
 
@@ -77,6 +90,32 @@ io.on("connection", (socket) => {
 });
 
   module.exports = {io}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.use(bodyParser.json({ limit: '50mb' })); 
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));

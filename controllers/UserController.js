@@ -150,7 +150,7 @@ const update = async (req, res) => {
   
 
 
-
+ 
   
  
   //Controller function to delete one user
