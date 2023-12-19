@@ -20,7 +20,7 @@ const createProperty = async (req, res) => {
   }
 
   // Extract data from the request
-  const { apartment, amount, images, location, about, features, mainFeatures } = req.body;
+  const { apartment, amount, images, location, about, features, mainFeatures, bedroom, hostelName } = req.body;
 
   // Save images to Cloudinary and get their links
   const imageUrls = [];
@@ -45,6 +45,8 @@ const createProperty = async (req, res) => {
     location,
     about,
     features,
+    bedroom,
+    hostelName,
     mainFeatures,
     owner : req.user.user_id
   });
@@ -265,7 +267,7 @@ const updateProperty = async (req, res) => {
   const propertyId = req.params.id;
 
   // Extract data from the request
-  const { apartment, amount, images, location, about, features, mainFeatures } = req.body;
+  const { apartment, amount, images, location, about, features, mainFeatures, bedroom, hostelName } = req.body;
 
   // Save images to Cloudinary and get their links
   const imageUrls = [];
@@ -296,6 +298,8 @@ const updateProperty = async (req, res) => {
     existingProperty.about = about;
     existingProperty.features = features;
     existingProperty.mainFeatures = mainFeatures;
+    existingProperty.bedroom = bedroom;
+    existingProperty.hostelName = hostelName;
 
 
 
@@ -310,5 +314,38 @@ const updateProperty = async (req, res) => {
 
 
 
+const getAllPropertiesForAdmin = async (req, res) => {
+  try {
+    // Check if the result is already in the cache
+    const cacheKey = "allProperties";
+    const cachedProperties = myCache.get(cacheKey);
 
-module.exports = {getPropertyByQuery, createProperty ,showMyProperty , updateProperty , showAllProperties, showSingleProperty , deleteProperty};
+    if (cachedProperties) {
+      // If data is found in cache, send it directly
+      return res.status(200).json(cachedProperties);
+    }
+
+    // If data is not found in cache, fetch all properties from the database
+    const properties = await Property.find({});
+    
+    if (properties.length === 0) {
+      return res.status(404).json({ message: "Properties not found" });
+    }
+
+       const populatedProperties = await Property.populate(properties, {
+            path: 'owner',
+            select: '-password', // Exclude the password field
+        });
+
+    // Store the result in the cache
+    myCache.set(cacheKey, populatedProperties, 180); // Adjust the cache time as needed
+
+    res.status(200).json(populatedProperties);
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching properties", error: error.message });
+  }
+};
+
+
+
+module.exports = {getPropertyByQuery, getAllPropertiesForAdmin, createProperty ,showMyProperty , updateProperty , showAllProperties, showSingleProperty , deleteProperty};

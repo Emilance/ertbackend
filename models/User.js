@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  phoneNumber:{
+    type: Number,
+    default: 0
+  },
   role:{
     type: String,
     enum:["landlord", "student", "admin" ],

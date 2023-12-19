@@ -1,3 +1,6 @@
+const Notification = require("../models/Notification");
+const Property = require("../models/Property");
+const Tour = require("../models/Tour");
 const User = require("../models/User");
 const { cloudinary } = require("../utils/cloudinary");
 const { validateBody } = require("../utils/utilityFunctions");
@@ -68,7 +71,9 @@ const update = async (req, res) => {
           user.bankDetails.acctNumber = updateData.acctNumber;
         }
       
-
+        if (updateData.phoneNumber) {
+          user.phoneNumber = updateData.phoneNumber;
+        }
 
     // Update user fields
     if (updateData.email) {
@@ -154,29 +159,38 @@ const update = async (req, res) => {
   
  
   //Controller function to delete one user
-  const destroy = async (req, res) => {
-    if (validateBody(req, res)) {
-      return;
-    }
-    try {
-      const userId = req.params.id;
-      // Check if user exists
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: "user not found" });
-      }
-      // Delete the user
-      await User.findByIdAndDelete(userId);
-      // Send response indicating successful deletion
-      return res.status(200).json({ message: "user deleted successfully" });
-    } catch (error) {
-      return res
-        .status(500)
-        .json({ message: "Failed to delete user", error: error.message });
-    }
-  };
 
 
+  const destroy =   async (req, res) => {
+    const {id} = req.params
+  
+   try {
+       const properties = await Property.find({owner : id})
+     properties.map( async (data, index) => {
+         await Property.findByIdAndDelete(data.id)
+ 
+     })
+     const tours = await Tour.find({ userId : id })
+     tours.map( async (data, index) => {
+         await Tour.findByIdAndDelete(data.id)
+ 
+     })
+ 
+     const not = await Notification.find({user_id  : id})
+     not.map( async (data, index) => {
+         await Notification.findByIdAndDelete(data.id)
+     })
+ 
+      await User.findByIdAndDelete(id)
+     res.status(200).json({message : "Account deleted with houses and  tours attached"} )
+ 
+   } catch (error) {
+     console.log(error)
+     res.status(500).json({message: error.message})
+   }
+ 
+ }
+ 
   
   
   module.exports = {
@@ -184,6 +198,6 @@ const update = async (req, res) => {
     show,
     destroy,
     update,
-    showMyDetail
+    showMyDetail,
   };
   

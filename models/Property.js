@@ -20,6 +20,14 @@ const propertySchema = new mongoose.Schema({
     about:{
         type:String
     },
+    bedroom : {
+        type: Number,
+        default:0,
+    },
+    hostelName :{
+        type: String,
+        default:'',
+    },
     features:[String],
     mainFeatures:{
         light: Boolean,
