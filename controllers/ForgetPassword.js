@@ -20,7 +20,6 @@ const ForgetPassword = async(req, res) => {
         return res.status(500).json({ message: "Error creating the notification",  error : error.message });
     }
 
-
 }
 
 const ChangePassword = async (req, res) => {

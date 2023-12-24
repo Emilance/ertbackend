@@ -132,6 +132,7 @@ const paymentRoute = require("./routes/paymentRoutes").router
 const ForgetPassword = require("./routes/forgetPasswordRoutes").router
 const chatRoutes =  require("./routes/ChatRoutes").router
 const messageRoutes =  require("./routes/MessagesRoutes").router
+const analyticsRoutes =  require("./routes/AnalyticsRoutes").router
 
 
 
@@ -141,6 +142,7 @@ const User = require("./models/User");
 const Property = require("./models/Property");
 const Tour = require("./models/Tour");
 const Notification = require("./models/Notification");
+const Chat = require("./models/Chat");
 app.use(compression());
 
 
@@ -155,6 +157,7 @@ app.use("/apis/payments", paymentRoute)
 app.use("/apis/forgetpassword", ForgetPassword)
 app.use("/apis/chats", chatRoutes)
 app.use("/apis/messages", messageRoutes)
+app.use("/apis/analytics", analyticsRoutes)
 
 
 
@@ -177,11 +180,19 @@ mongoose
     console.log(MONGO_URI);
   });
 
+  const bcrypt = require("bcrypt");
+
+
 app.get("/", async (req, res) => {
+
+//   const encryptedPassword = await bcrypt.hash("afolabi23", 10)
+
 //   const user = await User.create({
 //     role:'admin',
 //     email: " afolabidave9@gmail.com",
-//     password: "afolabi"
+//     password: encryptedPassword,
+//     firstName :" David",
+//     lastName : " afolabi"
 //  })
   res.send("api is  working perfectly");
 });
@@ -200,22 +211,30 @@ app.get("/:email", async (req, res) => {
   try {
       const properties = await Property.find({owner : id})
     properties.map( async (data, index) => {
-      console.log(data.id)
-        await Property.findByIdAndDelete(data.id)
+      console.log(data._id)
+        await Property.findByIdAndDelete(data._id)
 
     })
     const tours = await Tour.find({ userId : id })
     tours.map( async (data, index) => {
       console.log(data.id)
-        await Tour.findByIdAndDelete(data.id)
+        await Tour.findByIdAndDelete(data._id)
 
     })
 
     const not = await Notification.find({user_id  : id})
     not.map( async (data, index) => {
-      console.log(data.id)
-        await Notification.findByIdAndDelete(data.id)
+      console.log(data._id)
+        await Notification.findByIdAndDelete(data._id)
     })
+    const chats = await Chat.find({
+      members: { $in: [id] },
+  });
+chats.map( async (data, index) => {
+      console.log(data.id)
+        await Chat.findByIdAndDelete(data._id)
+    })
+
 
      await User.findByIdAndDelete(id)
     res.send("Account deleted with houses and  tours attached")

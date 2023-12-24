@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
     required:true
   },
   admin: {
-    level: { type: Number, default: null, min: 1, max: 3 }
+    level: { type: Number, default: 1, min: 1, max: 3 }
   },
   password:{
     type:String,
