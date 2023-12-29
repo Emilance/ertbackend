@@ -18,7 +18,6 @@ const createProperty = async (req, res) => {
   if (validateBody(req, res)) {
     return;
   }
-
   // Extract data from the request
   const { apartment, amount, images, location, about, features, mainFeatures, bedroom, hostelName } = req.body;
 
@@ -50,7 +49,7 @@ const createProperty = async (req, res) => {
     mainFeatures,
     owner : req.user.user_id
   });
-scr
+
   // Create a new Date object to get the current date and time
 const currentDate = new Date();
 
@@ -79,7 +78,7 @@ const formattedDate = `${day}-${month < 10 ? '0' : ''}${month}-${year}`;
     const newNotification = await Notification.create(notificationContent)
     return res.status(201).json({ message: "Property created successfully", property: newProperty });
   } catch (error) {
-    return res.status(500).json({ message: "Error creating the property",  error : error.message });
+    return res.status(500).json({ error: "Error creating the property",  message : error.message });
   }
 };
 
@@ -94,6 +93,7 @@ const showMyProperty = async (req, res)=> {
         if(!properties){
             return res.status(404).json({message:"property  not found"})
         }
+        properties.reverse();
         res.status(200).json( properties )
     } catch (error) {
         return res.status(500).json({ message: "Error fetching property",  error : error.message });
