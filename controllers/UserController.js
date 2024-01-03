@@ -1,3 +1,5 @@
+const Chat = require("../models/Chat");
+const Message = require("../models/Messsage");
 const Notification = require("../models/Notification");
 const Property = require("../models/Property");
 const Tour = require("../models/Tour");
@@ -158,38 +160,46 @@ const update = async (req, res) => {
  
   
  
-  //Controller function to delete one user
+    const destroy = async (req, res) => {
+      const { id } = req.params;
+    
+      try {
+        // Delete properties owned by the user
+        const properties = await Property.find({ owner: id });
+        await Promise.all(properties.map(async (property) => {
+          await Property.findByIdAndDelete(property.id);
+        }));
+    
+        // Delete tours associated with the user
+        const tours = await Tour.find({ userId: id });
+        await Promise.all(tours.map(async (tour) => {
+          await Tour.findByIdAndDelete(tour.id);
+        }));
+    
+        // Delete notifications for the user
+        const notifications = await Notification.find({ user_id: id });
+        await Promise.all(notifications.map(async (notification) => {
+          await Notification.findByIdAndDelete(notification.id);
+        }));
+    
+        // Delete user's chats and associated messages
+        const userChats = await Chat.find({ members: id });
+        await Message.deleteMany({ chatId: { $in: userChats.map(chat => chat._id) } });
+        await Chat.deleteMany({ members: id });
+    
+        // Delete the user
+        await User.findByIdAndDelete(id);
+    
+        res.status(200).json({ message: "Account deleted with associated properties, tours, notifications, chats, and messages." });
+    
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal Server Error' });
+      }
+    };
+    
 
-
-  const destroy =   async (req, res) => {
-    const {id} = req.params
-  
-   try {
-       const properties = await Property.find({owner : id})
-     properties.map( async (data, index) => {
-         await Property.findByIdAndDelete(data.id)
- 
-     })
-     const tours = await Tour.find({ userId : id })
-     tours.map( async (data, index) => {
-         await Tour.findByIdAndDelete(data.id)
- 
-     })
- 
-     const not = await Notification.find({user_id  : id})
-     not.map( async (data, index) => {
-         await Notification.findByIdAndDelete(data.id)
-     })
- 
-      await User.findByIdAndDelete(id)
-     res.status(200).json({message : "Account deleted with houses and  tours attached"} )
- 
-   } catch (error) {
-     console.log(error)
-     res.status(500).json({message: error.message})
-   }
- 
- }
+    
  
   
   
