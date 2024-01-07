@@ -1,6 +1,6 @@
 const Chat = require("../models/Chat");
 const User = require("../models/User");
-
+const Message = require("../models/Messsage")
 
 
 
@@ -24,7 +24,7 @@ const createChat = async (req, res) => {
         });
 
         if (existingChat) return res.status(200).json(existingChat);
-
+       
         const newChat = await Chat.create({
             members: [userId, recipId],
         });
@@ -90,4 +90,32 @@ const findChats = async (req, res) => {
 };
 
 
-module.exports = {createChat,  findUserChats, findChats}
+const destroyChat = async (req, res) => {
+    const { chatId } = req.params;
+  
+    try {
+      // Find the chat by ID
+      const chat = await Chat.findById(chatId);
+  
+      if (!chat) {
+        return res.status(404).json({ error: 'Chat not found' });
+      }
+  
+      // Delete all messages associated with the chat
+      await Message.deleteMany({ chatId });
+  
+      // Delete the chat
+      await chat.remove();
+  
+      return res.status(200).json({ message: 'Chat and associated messages deleted successfully' });
+    } catch (error) {
+      console.error('Error deleting chat:', error);
+      return res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+  };
+
+
+  
+
+
+module.exports = {createChat, destroyChat, findUserChats, findChats}
