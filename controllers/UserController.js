@@ -19,6 +19,7 @@ const myCache = new NodeCache();
 const getAll = async (req, res) => {
     try {
       const users = await User.find().select('-password -created_at -updated_at');
+      users.reverse()
       res.status(200).send(users);
     } catch (error) {
       console.log(error);

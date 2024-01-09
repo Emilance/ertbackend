@@ -19,11 +19,17 @@ const createChat = async (req, res) => {
 
         const recipId = adminRecipient[0]._id;
         if(userId == recipId)  return res.status(400).json({message: " cannot create a chat with yourself"})
-        const existingChat = await Chat.findOne({
-            members: { $all: [userId, recipId] },
-        });
+        // const existingChat = await Chat.findOne({
+        //     members: { $all: [userId, recipId] },
+        // });
 
-        if (existingChat) return res.status(200).json(existingChat);
+        const existingChat = await Chat.find({
+            members: { $in: [userId] },
+        });
+        console.log(existingChat)
+        if (existingChat.length > 0 ) {
+            return res.status(200).json(existingChat);
+        }
        
         const newChat = await Chat.create({
             members: [userId, recipId],
@@ -105,7 +111,7 @@ const destroyChat = async (req, res) => {
       await Message.deleteMany({ chatId });
   
       // Delete the chat
-      await chat.remove();
+      await Chat.findByIdAndDelete(chatId);
   
       return res.status(200).json({ message: 'Chat and associated messages deleted successfully' });
     } catch (error) {
