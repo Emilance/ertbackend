@@ -1,4 +1,6 @@
+const Chat = require("../models/Chat")
 const Message = require("../models/Messsage")
+const Notification = require("../models/Notification")
 
 
 
@@ -14,6 +16,29 @@ try {
         senderId,
          text
     })
+
+     const chat = await  Chat.findById(chatId)
+     const recipientId =  chat.members.filter(id  =>  id != senderId)
+
+    const currentDate = new Date();
+
+    // Get the year, month, and day
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth() + 1; // Months are zero-based, so add 1
+    const day1 = currentDate.getDate();
+
+    // Create formatted strings for the date
+    const formattedDate = `${day1}-${month < 10 ? '0' : ''}${month}-${year}`;
+
+    const notificationContent = {
+      heading : "You received a new  message from",
+      content : `You received a new  message in your Inbox - YMessage Body :: ${text}`,
+      user_id : recipientId,
+      attachment : message._id,
+      Date : formattedDate
+    }
+    const newNotification = await Notification.create(notificationContent)
+
     res.status(201).json({message :" message sent successfully",  data : message})
 } catch (error) {
     console.log(error)

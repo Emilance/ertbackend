@@ -60,7 +60,7 @@ const findUserChats = async (req, res) => {
             select: '-password', // Exclude the password field
             match: { _id: { $ne: userId } }, // Exclude the current user from the population
         });
-
+        populatedChats.reverse()
         res.status(200).json(populatedChats);
     } catch (error) {
         console.log(error);
@@ -68,6 +68,18 @@ const findUserChats = async (req, res) => {
     }
 };
 
+const updateUnreadMessageCount  = async (req, res ) => {
+    const chatId = req.params.chatId
+    const {unreadMessageCount} = req.body
+    try {
+        const  updatedChat = await Chat.findByIdAndUpdate(chatId, { $inc: { unreadMessageCount: unreadMessageCount } });
+        res.status(200).json(updatedChat)
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: "Failed to update Chat", message: error.message });
+    }
+
+}
 
 
 const findChats = async (req, res) => {
@@ -124,4 +136,4 @@ const destroyChat = async (req, res) => {
   
 
 
-module.exports = {createChat, destroyChat, findUserChats, findChats}
+module.exports = {createChat, destroyChat, updateUnreadMessageCount, findUserChats, findChats}
