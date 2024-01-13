@@ -235,16 +235,79 @@ const deleteProperty = async (req, res) => {
 
 const getPropertyByQuery = async (req, res) => {
   try {
-    const { houseType, priceRange } = req.body;
+    const { houseType, priceRange, bedroom } = req.body;
 
     // Construct the query based on the request body
-    const query = {
-      apartment: houseType,
-      amount: {
-        $gte: parseInt(priceRange.minPrice),
-        $lte: parseInt(priceRange.maxPrice),
-      },
-    };
+    var query = {}
+     if(!priceRange){
+        if(bedroom <= 0){
+                  query  = {
+                    apartment: houseType,
+                  };
+        }else if (!houseType){
+                query  = {
+                  bedroom,
+                };
+        }else {
+                query  = {
+                  apartment: houseType,
+                  bedroom,
+                };
+        }
+    
+     } else if (bedroom <=0  ){
+
+        if(!houseType){
+              query  = {
+                amount: {
+                  $gte: parseInt(priceRange.minPrice),
+                  $lte: parseInt(priceRange.maxPrice),
+                },
+              };
+         }  else if (!priceRange){
+                query  = {
+                  apartment: houseType,             
+                };
+         } else {
+                query  = {
+                  apartment: houseType,
+                  amount: {
+                    $gte: parseInt(priceRange.minPrice),
+                    $lte: parseInt(priceRange.maxPrice),
+                  },
+                };
+         }
+     } else if (!houseType){
+        if(!priceRange){
+                  query  = {
+                    bedroom,
+                  };
+        } else if (bedroom <= 0){
+                  query  = {
+                    amount: {
+                      $gte: parseInt(priceRange.minPrice),
+                      $lte: parseInt(priceRange.maxPrice),
+                    },
+                  };
+        }else {
+                query  = {
+                  bedroom,
+                  amount: {
+                    $gte: parseInt(priceRange.minPrice),
+                    $lte: parseInt(priceRange.maxPrice),
+                  },
+                };
+        }
+     }else {
+          query  = {
+            apartment: houseType,
+            bedroom,
+            amount: {
+              $gte: parseInt(priceRange.minPrice),
+              $lte: parseInt(priceRange.maxPrice),
+            },
+          };
+     }
 
     // Perform the database query
     const properties = await Property.find(query);
