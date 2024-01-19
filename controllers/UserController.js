@@ -50,7 +50,8 @@ const getAll = async (req, res) => {
 //controller function to update an user
 const update = async (req, res) => {
   if (validateBody(req, res)) {
-    return;
+    r
+    eturn;
   }
   try {
     const userId = req.user.user_id;

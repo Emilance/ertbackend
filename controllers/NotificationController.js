@@ -15,6 +15,7 @@ const getMyNotification = async (req, res) => {
     if(!notifications){
         return res.status(404).json({message:"notification  not found"})
     }
+    notifications.reverse();
     res.status(200).json( notifications )
  } catch (error) {
     return res.status(500).json({ message: "Error creating the notification",  error : error.message });
