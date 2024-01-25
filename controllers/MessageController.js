@@ -1,6 +1,7 @@
 const Chat = require("../models/Chat")
 const Message = require("../models/Messsage")
 const Notification = require("../models/Notification")
+const User = require("../models/User");
 
 
 
@@ -21,6 +22,7 @@ try {
      const chat = await  Chat.findById(chatId)
      const recipientId =  chat.members.filter(id  =>  id != senderId)
 
+     const senderData = await User.findById(senderId)
     const currentDate = new Date();
 
     // Get the year, month, and day
@@ -33,7 +35,8 @@ try {
 
     const notificationContent = {
       heading : "You received a new  message from",
-      content : `You received a new  message in your Inbox - YMessage Body :: ${text}`,
+      content : `You received a new  message in your Inbox - ${text}`,
+      picture :  senderData.profilePicture,
       user_id : recipientId,
       attachment : message._id,
       Date : formattedDate
@@ -68,9 +71,7 @@ const findChatMessages = async (req, res ) => {
                 message : "No Message in found for this chat"
             })
         }
-
         res.status(200).json(messages)
-
     } catch (error) {
         console.log(error)
         return res.status(500).json({

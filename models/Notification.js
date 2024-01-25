@@ -13,6 +13,10 @@ const notificationSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
+    picture :{
+        type: String,
+
+    },
 
     attachment :{
         type: mongoose.Schema.ObjectId,

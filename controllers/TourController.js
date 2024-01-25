@@ -26,7 +26,7 @@ const createTour = async (req, res) => {
 
       const notificationContent = {
         heading : "Tour Scheduled Sucesss",
-        content : `You have successfully schdule a tour to ${day} ${time} ${period}`,
+        content : `You have successfully schedule a tour to ${day} ${time} ${period}`,
         user_id : user_id,
         attachment : newTour._id,
         Date : formattedDate
