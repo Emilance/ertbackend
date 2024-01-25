@@ -49,7 +49,10 @@ const updateTour = async (req, res) => {
       if (!updatedTour) {
           return res.status(404).json({ success: false, error: 'Tour not found' });
       }
-      res.status(200).json({ success: true, data: updatedTour });
+      const populatedUpdatedTour = await Tour.populate(updatedTour, {
+        path: 'propertyId',  
+    });
+      res.status(200).json({ success: true, data: populatedUpdatedTour });
   } catch (error) {
       res.status(500).json({ success: false, error: error.message });
   }

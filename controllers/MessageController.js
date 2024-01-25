@@ -7,14 +7,15 @@ const Notification = require("../models/Notification")
 
 
 const  createMessage = async (req, res) => {
-    const {chatId  , text} = req.body
+    const {chatId , attachment , text} = req.body
     const senderId = req.user.user_id
 
 try {
     const message = await Message.create({
         chatId, 
         senderId,
-         text
+         text,
+         attachment
     })
 
      const chat = await  Chat.findById(chatId)
@@ -54,7 +55,14 @@ try {
 const findChatMessages = async (req, res ) => {
     const {chatId} = req.params
     try {
-        const messages = await Message.find({chatId})
+        const messages = await Message.find({chatId}).populate({
+            path: 'attachment',
+            populate: {
+              path: 'propertyId',
+            },
+            // match: { attachment: { $exists: true } }, 
+          });
+      
         if(!messages || messages  <= 0){
             return res.status(404).json({
                 message : "No Message in found for this chat"

@@ -15,6 +15,11 @@ const messageSchema = new mongoose.Schema({
     type: String,
     required: true
    },
+   attachment: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Tour",
+    default: null
+   }
 },
 {
     timestamps: true
