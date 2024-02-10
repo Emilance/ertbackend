@@ -1,48 +1,160 @@
 const Chat = require("../models/Chat");
 const User = require("../models/User");
-const Message = require("../models/Messsage")
+const Message = require("../models/Messsage");
+const { onlineUser , setOnUserUpdatedCallback} = require("../socket");
+
+
+
+ var userIdsArray = []
+
+
+// setOnUserUpdatedCallback((updatedUserList) => {
+//     // Access the updated user list here
+//      userIdsArray = updatedUserList.map(user => user.userId);
+    
+//     console.log("Received updated user list:", userIdsArray);
+// });
+
+
+
+// const createChat = async (req, res) => {
+//     const userId = req.user.user_id;
+//     try {
+//         // Get a random admin user
+//         const adminRecipient = await User.aggregate([
+//             { $match: { role: "admin" } },
+//             { $sample: { size: 1 } },
+//         ]);
+//          console.log(adminRecipient)
+//         if (!adminRecipient || adminRecipient.length === 0) {
+//             return res.status(404).json({ error: "No admin user found" });
+//         }
+
+//         const recipId = adminRecipient[0]._id;
+//         if(userId == recipId)  return res.status(400).json({message: " cannot create a chat with yourself"})
+//         // const existingChat = await Chat.findOne({
+//         //     members: { $all: [userId, recipId] },
+//         // });
+
+//         const existingChat = await Chat.find({
+//             members: { $in: [userId] },
+//         });
+//         console.log(existingChat)
+//         if (existingChat.length > 0 ) {
+//             return res.status(200).json(existingChat);
+//         }
+       
+//         const newChat = await Chat.create({
+//             members: [userId, recipId],
+//         });
+
+//         return res.status(201).json(newChat);
+//     } catch (error) {
+//         console.log(error);
+//         return res
+//             .status(500)
+//             .json({ error: "Failed to createChat", message: error.message });
+//     }
+// };
 
 
 
 const createChat = async (req, res) => {
     const userId = req.user.user_id;
     try {
-        // Get a random admin user
-        const adminRecipient = await User.aggregate([
-            { $match: { role: "admin" } },
-            { $sample: { size: 1 } },
-        ]);
-         console.log(adminRecipient)
-        if (!adminRecipient || adminRecipient.length === 0) {
-            return res.status(404).json({ error: "No admin user found" });
-        }
-
-        const recipId = adminRecipient[0]._id;
-        if(userId == recipId)  return res.status(400).json({message: " cannot create a chat with yourself"})
-        // const existingChat = await Chat.findOne({
-        //     members: { $all: [userId, recipId] },
-        // });
-
-        const existingChat = await Chat.find({
-            members: { $in: [userId] },
-        });
-        console.log(existingChat)
-        if (existingChat.length > 0 ) {
+        // Check for existing chat
+        const existingChat = await Chat.find({ members: { $in: [userId] } });
+        console.log(existingChat);
+        if (existingChat.length > 0) {
             return res.status(200).json(existingChat);
         }
-       
-        const newChat = await Chat.create({
-            members: [userId, recipId],
+
+
+
+        // Set callback for updated user list
+        setOnUserUpdatedCallback((updatedUserList) => {
+            // Access the updated user list here
+            userIdsArray = updatedUserList.map(user => user.userId);
+            console.log("Received updated user list:", userIdsArray);
         });
 
+        let adminRecipientId ;
+        let adminRecipient =[] ;
+
+
+        // Filter online admin users
+        const onlineAdmins = userIdsArray.filter(userId => isAdmin(userId)); // Assuming isAdmin(userId) is a function that checks if the user is an admin
+        if (onlineAdmins.length > 0) {
+            // Randomly select an online admin recipient
+             adminRecipientId = onlineAdmins[Math.floor(Math.random() * onlineAdmins.length)];
+            console.log("Randomly selected online admin recipient:", adminRecipientId);
+        } else {
+            // No online admin users available, fallback to selecting any admin user randomly
+             adminRecipient = await User.aggregate([
+                { $match: { role: "admin" } },
+                { $sample: { size: 1 } },
+            ]);
+            console.log("Randomly selected admin recipient:", adminRecipient);
+        }
+
+        // Check if the recipient ID is the same as the sender's ID
+        const recipId = adminRecipientId || adminRecipient[0]?._id;
+        
+        if (userId == recipId) {
+            return res.status(400).json({ message: "Cannot create a chat with yourself" });
+        }
+
+    
+        // Create new chat
+        const newChat = await Chat.create({ members: [userId, recipId] });
         return res.status(201).json(newChat);
+
     } catch (error) {
-        console.log(error);
-        return res
-            .status(500)
-            .json({ error: "Failed to createChat", message: error.message });
+        console.error("Error creating chat:", error);
+        return res.status(500).json({ error: "Failed to create chat", message: error.message });
     }
 };
+
+// Function to check if the user is an admin
+async function isAdmin(userId) {
+    try {
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        // Check if the user exists and has the admin role
+        if (user && user.role === "admin") {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error("Error checking admin status:", error);
+        return false;
+    }
+}
+
+
+
+
+// Function to check if the user is an admin
+async function isAdmin(userId) {
+    try {
+        // Find the user by ID
+        const user = await User.findById(userId);
+
+        // Check if the user exists and has the admin role
+        if (user && user.role === "admin") {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error("Error checking admin status:", error);
+        return false;
+    }
+}
+
+
 
 
 

@@ -1,107 +1,10 @@
-const express = require("express");
 const bodyParser = require("body-parser");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const { Server } = require("socket.io");
+const { app } = require("./init");
 
 require("dotenv").config();
 
 
-
-const app = express();
-app.use(cors());
-
-const server = require("http").createServer(app)
-
- const io = new Server(server,  
-  {
-    cors:{
-      origin:"*",
-      credentials : true
-    } 
-  }
-  );
-
-  let onlineUser= []
-
-io.on("connection", (socket) => {
  
-  console.log("new connection" , socket.id)
-  
-  //listen to connection
-
-  socket.on("addNewUser", (userId) => {
-   !onlineUser.some(user => user.userId === userId)  &&
-      onlineUser.push({
-      userId,
-      socketId: socket.id
-     }) 
-      console.log(onlineUser)
-      io.emit("getOnlineUser", onlineUser)
-  })
-
-   //send medssage
-   socket.on("sendMessage", (message) => {
-      const user = onlineUser.find(user => user.userId === message.recipientId)
-      if(user){
-          io.to(user.socketId).emit("getMessage", message)
-          io.to(user.socketId).emit("getNotification", {
-            senderId : message.senderId,
-            isRead : false,
-            date: new Date(),
-          });
-         
-          // console.log({
-          //   senderId : message.senderId,
-          //   isRead : false,
-          //   date: new Date(),
-          // })
-        }
-
-
-  })
-
-
-  //typing effect 
-  socket.on("typing", (userd) => {
-    let user = onlineUser.find(user => user.userId === userd.recipientId)
-    
-    if(user){
-        io.to(user.socketId).emit("userTyping", user)
-    }
- })
-
- socket.on("stop-typing", (userd) => {
-  let user = onlineUser.find(user => user.userId === userd.recipientId)
-  if(user){
-      io.to(user.socketId).emit("userStopTyping", user)
-  }
-
-})
-
-
-  socket.on("disconnect", ()=> {
-      onlineUser = onlineUser.filter(user => user.socketId !== socket.id)
- 
-      io.emit("getOnlineUser", onlineUser)
-
-  })
-
-});
-
-  module.exports = {io}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -164,21 +67,6 @@ app.use("/apis/analytics", analyticsRoutes)
 
 
 
-
-const MONGO_URI = process.env.MONGO_URI;
-mongoose
-  .connect(MONGO_URI, {
-    useNewUrlParser: true,
-  })
-  .then(() => {
-    server.listen(PORT, () => {
-      console.log(`EasyRent backend listening on port ${PORT}`);
-    });
-  })
-  .catch((e) => {
-    console.log("An Error Occur " + e.message);
-    console.log(MONGO_URI);
-  });
 
   const bcrypt = require("bcrypt");
 
