@@ -10,7 +10,13 @@ const chatSchema = new mongoose.Schema({
    unreadMessageCount: {
     type:Number,
     default: 0
-   }
+   },
+   status :{
+    type :String,
+    enum : ['active', 'closed'],
+    default: 'active',
+    required:true,
+   },
 },
 {
     timestamps: true

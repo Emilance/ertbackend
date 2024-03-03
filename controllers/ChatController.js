@@ -63,7 +63,7 @@ const createChat = async (req, res) => {
     const userId = req.user.user_id;
     try {
         // Check for existing chat
-        const existingChat = await Chat.find({ members: { $in: [userId] } });
+        const existingChat = await Chat.find({ members: { $in: [userId] }, status: 'active' });
         console.log(existingChat);
         if (existingChat.length > 0) {
             return res.status(200).json(existingChat);
@@ -164,6 +164,7 @@ const findUserChats = async (req, res) => {
         // Find all chats where the current user is a member
         const chats = await Chat.find({
             members: { $in: [userId] },
+            status: "active"
         });
 
         // Populate the other user's details in each chat
@@ -220,6 +221,66 @@ const findChats = async (req, res) => {
 };
 
 
+
+const regenerateChat = async(req, res) =>{
+    const { chatId } = req.params;
+    const {user_id}   = req.user
+        console.log("getting here ")
+    try {
+         // Find the chat by ID
+      const chat = await Chat.findById(chatId);
+  
+      if (!chat) {
+        return res.status(404).json({ error: 'Chat not found' });
+      }
+  
+      // Create the last closed Message
+        await Message.create({
+            chatId, 
+            senderId : user_id,
+            text : "✅ ✅ ✅ Chat Closed ✅ ✅ ✅  ",
+        })
+  
+      // Update and close the chat
+      await Chat.findByIdAndUpdate(chatId, {status: "closed"});
+
+      await  createChat(req, res)
+    } catch (error) {
+       console.log(error)  
+    }
+}
+
+
+const closeChat = async (req, res) => {
+    const { chatId } = req.params;
+    const {user_id}   = req.user_id
+
+     try {
+      // Find the chat by ID
+      const chat = await Chat.findById(chatId);
+  
+      if (!chat) {
+        return res.status(404).json({ error: 'Chat not found' });
+      }
+  
+      // Create the last closed Message
+        await Message.create({
+            chatId, 
+            senderId : user_id,
+            text : "✅ ✅ ✅ Chat Closed ✅ ✅ ✅  ",
+        })
+  
+      // Update and close the chat
+      await Chat.findByIdAndUpdate(chatId, {status: "closed"});
+  
+      return res.status(200).json({ message: 'Chat closed successfully' });
+    } catch (error) {
+      console.error('Error closing chat:', error);
+      return res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+}
+
+
 const destroyChat = async (req, res) => {
     const { chatId } = req.params;
   
@@ -248,4 +309,4 @@ const destroyChat = async (req, res) => {
   
 
 
-module.exports = {createChat, destroyChat, updateUnreadMessageCount, findUserChats, findChats}
+module.exports = {createChat, regenerateChat, destroyChat, closeChat, updateUnreadMessageCount, findUserChats, findChats}
