@@ -29,7 +29,8 @@ const createTour = async (req, res) => {
         content : `You have successfully schedule a tour to ${day} ${time} ${period}`,
         user_id : user_id,
         attachment : newTour._id,
-        Date : formattedDate
+        Date : formattedDate,
+        type:'receipt'
       }
       const newNotification = await Notification.create(notificationContent)
       res.status(201).json({ message: "tourCreated successfully", data: newTour });

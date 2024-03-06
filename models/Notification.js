@@ -17,6 +17,10 @@ const notificationSchema = new mongoose.Schema({
         type: String,
 
     },
+    type:{
+        type:String,
+        enum:['receipt', 'chat', 'property']
+    },
 
     attachment :{
         type: mongoose.Schema.ObjectId,

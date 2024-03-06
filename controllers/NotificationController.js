@@ -12,6 +12,8 @@ const getMyNotification = async (req, res) => {
 
  try {
     const  notifications = await  Notification.find({user_id : user.user_id})
+    .populate('user_id' , '-password') 
+    .populate('attachment') 
     if(!notifications){
         return res.status(404).json({message:"notification  not found"})
     }
@@ -28,6 +30,9 @@ const getNotification = async (req, res) => {
    
     try {
        const  notification = await  Notification.findById(notificationiId)
+       .populate('user_id') 
+       .populate('attachment') 
+       
        if(!notification){
            return res.status(404).json({message:"notification  not found"})
        }

@@ -2,20 +2,17 @@ const express = require('express');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const mongoose = require('mongoose');
-const User = require('./models/User');
+const User = require('../models/User');
+require("dotenv").config();
 
-const app = express();
 
-// Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/mydatabase', { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
 
 // Configure Passport with Google OAuth
-passport.use(new GoogleStrategy({
-    clientID: 'YOUR_CLIENT_ID',
-    clientSecret: 'YOUR_CLIENT_SECRET',
-    callbackURL: 'http://localhost:3000/auth/google/callback'
+ passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID ,
+    clientSecret: process.env.GOOGLE_SECRET ,
+    callbackURL: 'https://easyrent-44an.onrender.com/auth/google/callback',
+    scope: ['profile', 'email'] 
 }, async (accessToken, refreshToken, profile, done) => {
     try {
         // Check if user already exists in the database
@@ -42,17 +39,8 @@ passport.use(new GoogleStrategy({
     }
 }));
 
-// Initialize Passport
-app.use(passport.initialize());
 
-// Routes for Google OAuth
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
-    // Redirect to dashboard or homepage after successful authentication
-    res.redirect('/dashboard');
-});
 
-app.listen(3000, () => {
-    console.log('Server started on port 3000');
-});
+
+module.exports = passport;

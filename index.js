@@ -3,7 +3,8 @@ const { app } = require("./init");
 
 require("dotenv").config();
 
-
+const bcrypt = require("bcrypt");
+const passport = require("./utils/googleoauth");
  
 
 
@@ -65,10 +66,24 @@ app.use("/apis/analytics", analyticsRoutes)
 
 
 
+// Initialize Passport
+app.use(passport.initialize());
+
+// Routes for Google OAuth
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
+      // Access the access token and profile from the user object
+      const { accessToken, profile } = req.user;
+      // You can now use the access token and profile as needed
+      // For example, you can return them as JSON
+      res.json({ accessToken, profile });
+});
 
 
 
-  const bcrypt = require("bcrypt");
+
+
 
 
 app.get("/", async (req, res) => {
