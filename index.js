@@ -77,7 +77,10 @@ app.get('/auth/google/callback', passport.authenticate('google', { failureRedire
       const { accessToken, profile } = req.user;
       // You can now use the access token and profile as needed
       // For example, you can return them as JSON
-      res.json({ accessToken, profile });
+      console.log(req.user)
+      res.cookie('token', accessToken);
+      res.redirect(`${process.CLIENT_URL}`)
+     
 });
 
 
