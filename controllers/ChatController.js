@@ -83,7 +83,8 @@ const createChat = async (req, res) => {
 
 
         // Filter online admin users
-        const onlineAdmins = userIdsArray.filter(userId => isAdmin(userId)); // Assuming isAdmin(userId) is a function that checks if the user is an admin
+        const onlineAdmins = userIdsArray.filter(id => isAdmin(id)   && id != userId); //  isAdmin(userId) is a function that checks if the user is an admin
+        console.log('onlineadmins',  onlineAdmins)
         if (onlineAdmins.length > 0) {
             // Randomly select an online admin recipient
              adminRecipientId = onlineAdmins[Math.floor(Math.random() * onlineAdmins.length)];
@@ -116,11 +117,11 @@ const createChat = async (req, res) => {
 };
 
 // Function to check if the user is an admin
-async function isAdmin(userId) {
+async function isAdmin(id) {
     try {
         // Find the user by ID
-        const user = await User.findById(userId);
-
+        const user = await User.findById(id);
+         
         // Check if the user exists and has the admin role
         if (user && user.role === "admin") {
             return true;

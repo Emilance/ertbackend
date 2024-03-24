@@ -68,7 +68,8 @@ const formattedDate = `${day}-${month < 10 ? '0' : ''}${month}-${year}`;
     content : `A new ${apartment} was added to your  apartment list  on  ${formattedDate}`,
     user_id : req.user.user_id,
     attachment : newProperty._id,
-    Date : formattedDate
+    Date : formattedDate,
+    type: 'property'
     
   }
 

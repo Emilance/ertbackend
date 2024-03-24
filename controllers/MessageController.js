@@ -8,7 +8,7 @@ const User = require("../models/User");
 
 
 const  createMessage = async (req, res) => {
-    const {chatId , attachment , text} = req.body
+    const {chatId , attachment , text, property} = req.body
     const senderId = req.user.user_id
 
 try {
@@ -16,7 +16,8 @@ try {
         chatId, 
         senderId,
          text,
-         attachment
+         attachment,
+         property
     })
 
      const chat = await  Chat.findById(chatId)
@@ -39,7 +40,9 @@ try {
       picture :  senderData.profilePicture,
       user_id : recipientId,
       attachment : message._id,
-      Date : formattedDate
+      chat: chatId,
+      Date : formattedDate,
+      type:'chat'
     }
     const newNotification = await Notification.create(notificationContent)
 
@@ -64,7 +67,7 @@ const findChatMessages = async (req, res ) => {
               path: 'propertyId',
             },
             // match: { attachment: { $exists: true } }, 
-          });
+          }).populate('property');
       
         if(!messages || messages  <= 0){
             return res.status(404).json({

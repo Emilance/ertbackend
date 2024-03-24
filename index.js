@@ -73,11 +73,14 @@ app.use(passport.initialize());
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
-      // Access the access token and profile from the user object
-      const { accessToken, profile } = req.user;
+      
       // You can now use the access token and profile as needed
       // For example, you can return them as JSON
       console.log(req.user)
+      const accessToken = generateToken(
+         req.user,
+        "7d"
+      );
       res.cookie('token', accessToken);
       res.redirect(`${process.CLIENT_URL}`)
      

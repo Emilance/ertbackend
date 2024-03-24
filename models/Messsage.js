@@ -19,6 +19,11 @@ const messageSchema = new mongoose.Schema({
     type: mongoose.Schema.ObjectId,
     ref: "Tour",
     default: null
+   },
+   property: {
+    type: mongoose.Schema.ObjectId,
+    ref: "Property",
+    default: null
    }
 },
 {

@@ -26,6 +26,10 @@ const notificationSchema = new mongoose.Schema({
         type: mongoose.Schema.ObjectId,
         ref: "Property",
     },
+    chat:{
+        type: mongoose.Schema.ObjectId,
+        ref: "Chat",
+    },
     created_at: {
         type: Date,
         default: Date.now,
