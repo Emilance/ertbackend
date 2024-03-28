@@ -3,7 +3,7 @@ const { io } = require("./init");
 let onlineUser = [];
 
 io.on("connection", (socket) => {
-    console.log("new connection", socket.id);
+    // console.log("new connection", socket.id);
 
     // Listen to connection
     socket.on("addNewUser", (userId) => {
@@ -12,8 +12,8 @@ io.on("connection", (socket) => {
                 userId,
                 socketId: socket.id,
             });
-        console.log("getting here");
-        // console.log(onlineUser);
+       
+        
         io.emit("getOnlineUser", onlineUser);
         notifyUserUpdated();
     });
@@ -55,7 +55,7 @@ io.on("connection", (socket) => {
 });
 
 function notifyUserUpdated() {
-    console.log("User list updated:", onlineUser);
+   // console.log("User list updated:", onlineUser);
     if (typeof onUserUpdatedCallback === "function") {
         onUserUpdatedCallback(onlineUser);
     }

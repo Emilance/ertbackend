@@ -48,7 +48,11 @@ const userSchema = new mongoose.Schema({
   profilePicture :{
     type: String
   },
-
+  lastTour :{
+    type: mongoose.Schema.ObjectId,
+    ref: "Tour",
+    default: null
+  },
   created_at: {
     type: Date,
     default: Date.now,

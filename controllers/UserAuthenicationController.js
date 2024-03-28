@@ -281,13 +281,13 @@ const verifyOTP = async (req, res) => {
       try {
          const user = await User.findById(user_id) 
          const userRecords = await UserOTPVerification.find({ userId: user_id })
-         console.log(userRecords)
+         // console.log(userRecords)
          if(userRecords  && userRecords.length > 0){
             await UserOTPVerification.findByIdAndDelete(userRecords[0]._id);
          }
          const resp = await sendOTPVerificationMail(user, res)
          if(resp.status == "FAILED"){
-           console.log(resp.message)
+         //   console.log(resp.message)
            return res.status(500).json({message : resp.message})
          }
          res.status(200).json({

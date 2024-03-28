@@ -81,22 +81,28 @@ const createChat = async (req, res) => {
         let adminRecipientId ;
         let adminRecipient =[] ;
 
-
+       
         // Filter online admin users
         const onlineAdmins = userIdsArray.filter(id => isAdmin(id)   && id != userId); //  isAdmin(userId) is a function that checks if the user is an admin
         console.log('onlineadmins',  onlineAdmins)
-        if (onlineAdmins.length > 0) {
-            // Randomly select an online admin recipient
-             adminRecipientId = onlineAdmins[Math.floor(Math.random() * onlineAdmins.length)];
-            console.log("Randomly selected online admin recipient:", adminRecipientId);
-        } else {
-            // No online admin users available, fallback to selecting any admin user randomly
-             adminRecipient = await User.aggregate([
-                { $match: { role: "admin" } },
-                { $sample: { size: 1 } },
-            ]);
-            console.log("Randomly selected admin recipient:", adminRecipient);
-        }
+        // if (onlineAdmins.length > 0) {
+        //     // Randomly select an online admin recipient
+        //      adminRecipientId = onlineAdmins[Math.floor(Math.random() * onlineAdmins.length)];
+        //     console.log("Randomly selected online admin recipient:", adminRecipientId);
+        // } else {
+        //     // No online admin users available, fallback to selecting any admin user randomly
+        //      adminRecipient = await User.aggregate([
+        //         { $match: { role: "admin" } },
+        //         { $sample: { size: 1 } },
+        //     ]);
+        //     console.log("Randomly selected admin recipient:", adminRecipient);
+        // }
+        adminRecipient = await User.aggregate([
+            { $match: { role: "admin" } },
+            { $sample: { size: 1 } },
+        ]);
+        console.log("Randomly selected admin recipient:", adminRecipient);
+
 
         // Check if the recipient ID is the same as the sender's ID
         const recipId = adminRecipientId || adminRecipient[0]?._id;
@@ -105,9 +111,21 @@ const createChat = async (req, res) => {
             return res.status(400).json({ message: "Cannot create a chat with yourself" });
         }
 
-    
+       
         // Create new chat
         const newChat = await Chat.create({ members: [userId, recipId] });
+        const myLastTour =await  User.findById(userId).select('lastTour')
+        if(myLastTour){
+            const message = await Message.create({
+                chatId : newChat._id,
+                senderId :userId,
+                 text : 'New Tour' ,
+                 attachment: myLastTour.lastTour
+                 
+            })
+        }
+
+
         return res.status(201).json(newChat);
 
     } catch (error) {
