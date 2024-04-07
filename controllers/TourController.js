@@ -64,7 +64,9 @@ const updateTour = async (req, res) => {
 // Get a single tour by ID
 const getTour = async (req, res) => {
   try {
-      const tour = await Tour.findById(req.params.id);
+      const tour = await Tour.findById(req.params.id).populate({
+        path: 'propertyId',
+      })
       if (!tour) {
           return res.status(404).json({ success: false, error: 'Tour not found' });
       }

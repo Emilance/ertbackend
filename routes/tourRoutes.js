@@ -8,10 +8,10 @@ const { createTour, getTour, updateTour, deleteTour } = require("../controllers/
 const router = express.Router();
 
 
-router.get("/",verifyToken, getTour )
+router.get("/:id",verifyToken, getTour )
 router.post("/", verifyToken, createTour )
-router.put("/", verifyToken, updateTour )
-router.delete("/", verifyToken, deleteTour )
+router.put("/:id", verifyToken, updateTour )
+router.delete("/:id", verifyToken, deleteTour )
 
 
 
