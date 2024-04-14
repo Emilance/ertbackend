@@ -2,6 +2,8 @@ const bodyParser = require("body-parser");
 const { app } = require("./init");
 
 require("dotenv").config();
+const session = require('express-session');
+
 
 const bcrypt = require("bcrypt");
 const passport = require("./utils/googleoauth");
@@ -47,9 +49,8 @@ const Property = require("./models/Property");
 const Tour = require("./models/Tour");
 const Notification = require("./models/Notification");
 const Chat = require("./models/Chat");
+const { generateToken } = require("./utils/generatejwt");
 app.use(compression());
-
-
 
 //Routes
 app.use("/apis/users",  userRoute) ;
@@ -66,28 +67,86 @@ app.use("/apis/analytics", analyticsRoutes)
 
 
 
+
+app.use(session({ 
+  secret: 'your_secret_key_here', // Change this to a strong, random string
+  resave: false,
+  saveUninitialized: false 
+}));
+app.use(passport.session());
 // Initialize Passport
 app.use(passport.initialize());
 
 // Routes for Google OAuth
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }, 
+));
 
-app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/' }), (req, res) => {
+app.get('/auth/google/callback', passport.authenticate('google', { 
+  // successRedirect:  process.env.CLIENT_URL,
+  failureRedirect: '/login' ,
+  session: false
+}),
+ (req, res) => {
       
-      // You can now use the access token and profile as needed
-      // For example, you can return them as JSON
-      console.log(req.user)
+   
       const accessToken = generateToken(
-         req.user,
+        { user_id: req.user._id, email: req.user.email , role: req.user.role},
         "7d"
       );
+      //  console.log('theu', req.user)
       res.cookie('token', accessToken);
-      res.redirect(`${process.CLIENT_URL}`)
+      res.cookie('user',  JSON.stringify({email : req.user.email, role : req.user.role ,
+                          name:req.user.lastName || "No name", 
+                          emailVerified:req.user.emailVerified }))
+      res.redirect(`${process.env.CLIENT_URL}`)
      
+}
+);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Routes for Facebook OAuth
+app.get('/auth/facebook', passport.authenticate('facebook'))
+app.get('/auth/facebook/callback', passport.authenticate('facebook', { 
+  // successRedirect:  process.env.CLIENT_URL,
+  failureRedirect: '/login' ,
+  session: false
+}),
+ (req, res) => {
+   
+      const accessToken = generateToken(
+        { user_id: req.user._id, email: req.user.email , role: req.user.role},
+        "7d"
+      );
+      //  console.log('theu', req.user)
+      res.cookie('token', accessToken);
+      res.cookie('user',  JSON.stringify({email : req.user.email, role : req.user.role ,
+                          name:req.user.lastName || "No name", 
+                          emailVerified:req.user.emailVerified }))
+      res.redirect(`${process.env.CLIENT_URL}`)
+     
+}
+);
+
+
+
+
+// Add a logout route
+app.get('/logout', (req, res) => {
+  req.logout(); // Passport.js provides a logout() method to clear the login session
+  res.redirect('/'); // Redirect to the home page or any other page after logout
 });
-
-
-
 
 
 

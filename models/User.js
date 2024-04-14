@@ -53,6 +53,10 @@ const userSchema = new mongoose.Schema({
     ref: "Tour",
     default: null
   },
+  oauth : {
+    type: Boolean,
+    default: false
+  },
   created_at: {
     type: Date,
     default: Date.now,
