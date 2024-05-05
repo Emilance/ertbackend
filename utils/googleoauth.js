@@ -1,6 +1,8 @@
 const express = require('express');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
+
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const { generateToken } = require('./generatejwt');
@@ -38,22 +40,55 @@ require("dotenv").config();
 
       
    
-            // const accessToken = generateToken(
-            //   { user_id: user._id, email: user.email , role: user.role},
-            //   "7d"
-            // );
-            //  console.log('theu', user)
-            // res.cookie('token', accessToken);
-            // res.cookie('user',  JSON.stringify({email : user.email, role : user.role ,
-            //                     name:user.lastName || "No name", 
-            //                     emailVerified:user.emailVerified }))
-        
-        // console.log(user)
         return done(null, user);
     } catch (err) {
         return done(err);
     }
 }));
+
+
+
+
+
+
+
+
+
+
+
+passport.use(
+    new FacebookStrategy(
+      {
+        clientID: process.env.FACEBOOK_CLIENT_ID ,
+        clientSecret: process.env.FACEBOOK_SECRET ,
+        callbackURL: `${process.env.SERVER_URL}/auth/facebook/callback`,
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          let user = await User.findOne({ email: profile._json.email });
+  
+          if (!user) {
+            user = new User({
+              firstName: profile._json.first_name,
+              lastName: profile._json.last_name,
+              email: profile._json.email,
+              emailVerified: true, 
+                role: 'student', 
+                profilePicture: profile.photos[0].value,
+                password: 'google',
+                oauth :true
+            });
+  
+            await user.save();
+          }
+  
+          return done(null, user);
+        } catch (error) {
+          return done(error);
+        }
+      }
+    )
+  );
 
 
 

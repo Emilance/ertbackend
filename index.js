@@ -87,7 +87,8 @@ app.get('/auth/google/callback', passport.authenticate('google', {
   session: false
 }),
  (req, res) => {
-      
+      console.log(req)
+      console.log(req.query)
    
       const accessToken = generateToken(
         { user_id: req.user._id, email: req.user.email , role: req.user.role},
