@@ -94,11 +94,31 @@ app.get('/auth/google/callback', passport.authenticate('google', {
         { user_id: req.user._id, email: req.user.email , role: req.user.role},
         "7d"
       );
-      //  console.log('theu', req.user)
-      res.cookie('token', accessToken);
-      res.cookie('user',  JSON.stringify({email : req.user.email, role : req.user.role ,
-                          name:req.user.lastName || "No name", 
-                          emailVerified:req.user.emailVerified }))
+
+      res.cookie('token', accessToken, {
+        domain: process.env.CLIENT_URL,
+        secure: false,           
+        httpOnly: false,       
+        sameSite: 'None'       
+    });
+
+      // Set the user information cookie
+      res.cookie('user', JSON.stringify({
+          email: req.user.email,
+          role: req.user.role,
+          name: req.user.lastName || "No name",
+          emailVerified: req.user.emailVerified
+      }), {
+        domain: process.env.CLIENT_URL,
+          secure: false,           
+          httpOnly: false,        
+          sameSite: 'None'        
+      });
+      // //  console.log('theu', req.user)
+      // res.cookie('token', accessToken);
+      // res.cookie('user',  JSON.stringify({email : req.user.email, role : req.user.role ,
+      //                     name:req.user.lastName || "No name", 
+      //                     emailVerified:req.user.emailVerified }))
       res.redirect(`${process.env.CLIENT_URL}`)
      
 }

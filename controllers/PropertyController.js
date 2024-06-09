@@ -163,7 +163,7 @@ const showProperty = async (req, res) => {
 
 const showAllProperties = async (req, res) => {
   try {
-    const query = {};
+    const query = { propertyStatus: "accepted" };
 
     // Check if 'search' parameter is provided in the query
     if (req.query.search) {
@@ -243,14 +243,17 @@ const getPropertyByQuery = async (req, res) => {
      if(!priceRange){
         if(bedroom <= 0){
                   query  = {
+                    propertyStatus : 'accepted',
                     apartment: houseType,
                   };
         }else if (!houseType){
                 query  = {
+                  propertyStatus : 'accepted',
                   bedroom,
                 };
         }else {
                 query  = {
+                  propertyStatus : 'accepted',
                   apartment: houseType,
                   bedroom,
                 };
@@ -260,6 +263,7 @@ const getPropertyByQuery = async (req, res) => {
 
         if(!houseType){
               query  = {
+                propertyStatus : 'accepted',
                 amount: {
                   $gte: parseInt(priceRange.minPrice),
                   $lte: parseInt(priceRange.maxPrice),
@@ -267,10 +271,12 @@ const getPropertyByQuery = async (req, res) => {
               };
          }  else if (!priceRange){
                 query  = {
+                  propertyStatus : 'accepted',
                   apartment: houseType,             
                 };
          } else {
                 query  = {
+                  propertyStatus : 'accepted',
                   apartment: houseType,
                   amount: {
                     $gte: parseInt(priceRange.minPrice),
@@ -281,10 +287,12 @@ const getPropertyByQuery = async (req, res) => {
      } else if (!houseType){
         if(!priceRange){
                   query  = {
+                    propertyStatus : 'accepted',
                     bedroom,
                   };
         } else if (bedroom <= 0){
                   query  = {
+                    propertyStatus : 'accepted',
                     amount: {
                       $gte: parseInt(priceRange.minPrice),
                       $lte: parseInt(priceRange.maxPrice),
@@ -292,6 +300,7 @@ const getPropertyByQuery = async (req, res) => {
                   };
         }else {
                 query  = {
+                  propertyStatus : 'accepted',
                   bedroom,
                   amount: {
                     $gte: parseInt(priceRange.minPrice),
@@ -301,6 +310,7 @@ const getPropertyByQuery = async (req, res) => {
         }
      }else {
           query  = {
+            propertyStatus : 'accepted',
             apartment: houseType,
             bedroom,
             amount: {
@@ -331,7 +341,7 @@ const updateProperty = async (req, res) => {
   const propertyId = req.params.id;
 
   // Extract data from the request
-  const { apartment, amount, images, location, about, features, mainFeatures, bedroom, hostelName } = req.body;
+  const { apartment, amount, images, location, about, features, mainFeatures, bedroom, hostelName ,propertyStatus } = req.body;
 
   // Save images to Cloudinary and get their links
   const imageUrls = [];
@@ -355,15 +365,16 @@ const updateProperty = async (req, res) => {
       return res.status(404).json({ message: "Property not found" });
     }
 
-    existingProperty.apartment = apartment;
-    existingProperty.images = imageUrls;
-    existingProperty.amount = amount;
-    existingProperty.location = location;
-    existingProperty.about = about;
-    existingProperty.features = features;
-    existingProperty.mainFeatures = mainFeatures;
-    existingProperty.bedroom = bedroom;
-    existingProperty.hostelName = hostelName;
+    existingProperty.apartment = apartment  || existingProperty.apartment;
+    existingProperty.images = imageUrls ||  existingProperty.images ;
+    existingProperty.amount = amount ||existingProperty.amount;
+    existingProperty.location = location  ||  existingProperty.location;
+    existingProperty.about = about  || existingProperty.about;
+    existingProperty.features = features  ||  existingProperty.features;
+    existingProperty.mainFeatures = mainFeatures  || existingProperty.mainFeatures;
+    existingProperty.bedroom = bedroom ||  existingProperty.bedroom;
+    existingProperty.hostelName = hostelName ||  existingProperty.hostelName;
+    existingProperty.propertyStatus = propertyStatus  ||  existingProperty.propertyStatus;
 
 
 
@@ -379,6 +390,8 @@ const updateProperty = async (req, res) => {
 
 
 const getAllPropertiesForAdmin = async (req, res) => {
+
+  console.log('getting here')
   try {
     // Check if the result is already in the cache
     const cacheKey = "allProperties";
@@ -390,10 +403,10 @@ const getAllPropertiesForAdmin = async (req, res) => {
     }
 
     // If data is not found in cache, fetch all properties from the database
-    const properties = await Property.find({});
+    const properties = await Property.find({propertyStatus: "accepted"});
     
     if (properties.length === 0) {
-      return res.status(404).json({ message: "Properties not found" });
+      return res.status(404).json({ message: "No Properties  found" });
     }
 
        const populatedProperties = await Property.populate(properties, {
@@ -412,4 +425,36 @@ const getAllPropertiesForAdmin = async (req, res) => {
 
 
 
-module.exports = {getPropertyByQuery, getAllPropertiesForAdmin, createProperty ,showMyProperty , updateProperty , showAllProperties, showSingleProperty , deleteProperty};
+const getAllPendingPropertiesForAdmin = async (req, res) => {
+  try {
+    // Check if the result is already in the cache
+    const cacheKey = "pendingProperties";
+    const cachedProperties = myCache.get(cacheKey);
+
+    if (cachedProperties) {
+      // If data is found in cache, send it directly
+      return res.status(200).json(cachedProperties);
+    }
+
+    // If data is not found in cache, fetch all properties from the database
+    const properties = await Property.find({propertyStatus:  { $ne: 'accepted' }});
+    
+    if (properties.length === 0) {
+      return res.status(404).json({ message: "No Pending Properties  found" });
+    }
+
+       const populatedProperties = await Property.populate(properties, {
+            path: 'owner',
+            select: '-password', // Exclude the password field
+        });
+
+    // Store the result in the cache
+    myCache.set(cacheKey, populatedProperties, 180); // Adjust the cache time as needed
+
+    res.status(200).json(populatedProperties);
+  } catch (error) {
+    return res.status(500).json({ message: "Error fetching properties", error: error.message });
+  }
+};
+
+module.exports = {getPropertyByQuery, getAllPropertiesForAdmin,  getAllPendingPropertiesForAdmin,  createProperty ,showMyProperty , updateProperty , showAllProperties, showSingleProperty , deleteProperty};

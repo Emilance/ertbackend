@@ -44,6 +44,12 @@ const propertySchema = new mongoose.Schema({
         enum:["free", "occupied"],
         default: "free"
     },
+    propertyStatus:{
+       type : String ,
+       enum :["accepted" , "rejected" ,  "pending" ] ,
+       default: 'pending'
+       
+    },
     created_at: {
         type: Date,
         default: Date.now,
