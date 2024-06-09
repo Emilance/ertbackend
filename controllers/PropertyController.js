@@ -366,7 +366,7 @@ const updateProperty = async (req, res) => {
     }
 
     existingProperty.apartment = apartment  || existingProperty.apartment;
-    existingProperty.images = imageUrls ||  existingProperty.images ;
+    existingProperty.images = imageurls.length > 0 ? imageUrls : existingProperty.images ;
     existingProperty.amount = amount ||existingProperty.amount;
     existingProperty.location = location  ||  existingProperty.location;
     existingProperty.about = about  || existingProperty.about;
