@@ -56,7 +56,6 @@ const makePayment = async (req, res) => {
 const sendEmail = async ({ email }, res) => {
 
     try {
- 
      
        const mailOptions = {
           from: process.env.AUTH_EMAIL,

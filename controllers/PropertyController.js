@@ -24,17 +24,18 @@ const createProperty = async (req, res) => {
   // Save images to Cloudinary and get their links
   const imageUrls = [];
  // Assuming "images" is a field in your form for file uploads
+ console.log("getting here 1")
 
-  if (images && images.length > 0) {
-    for (const image of images) {
-      const cloudinaryResponse = await cloudinary.uploader.upload(image, (err, result)=>{
-        if (err) {
-          return res.status(500).json({ message: "Image upload failed" , err});
-        }
-      });
+ if (images && images.length > 0) {
+  for (const image of images) {
+    try {
+      const cloudinaryResponse = await cloudinary.uploader.upload(image);
       imageUrls.push(cloudinaryResponse.secure_url);
+    } catch (err) {
+      return res.status(500).json({ message: "Image upload failed", err });
     }
   }
+}
 
   // Create a new Property instance
   const newProperty = new Property({
@@ -52,7 +53,7 @@ const createProperty = async (req, res) => {
 
   // Create a new Date object to get the current date and time
 const currentDate = new Date();
-
+console.log("getting here 2")
 // Get the year, month, and day
 const year = currentDate.getFullYear();
 const month = currentDate.getMonth() + 1; // Months are zero-based, so add 1
@@ -72,6 +73,7 @@ const formattedDate = `${day}-${month < 10 ? '0' : ''}${month}-${year}`;
     type: 'property'
     
   }
+  console.log("getting here 3")
 
   // Save the property to the database
   try {

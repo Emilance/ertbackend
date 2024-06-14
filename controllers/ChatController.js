@@ -64,7 +64,6 @@ const createChat = async (req, res) => {
     try {
         // Check for existing chat
         const existingChat = await Chat.find({ members: { $in: [userId] }, status: 'active' });
-        console.log(existingChat);
         if (existingChat.length > 0) {
             return res.status(200).json(existingChat);
         }
@@ -75,7 +74,7 @@ const createChat = async (req, res) => {
         setOnUserUpdatedCallback((updatedUserList) => {
             // Access the updated user list here
             userIdsArray = updatedUserList.map(user => user.userId);
-            console.log("Received updated user list:", userIdsArray);
+            // console.log("Received updated user list:", userIdsArray);
         });
 
         let adminRecipientId ;
@@ -84,7 +83,7 @@ const createChat = async (req, res) => {
        
         // Filter online admin users
         const onlineAdmins = userIdsArray.filter(id => isAdmin(id)   && id != userId); //  isAdmin(userId) is a function that checks if the user is an admin
-        console.log('onlineadmins',  onlineAdmins)
+        // console.log('onlineadmins',  onlineAdmins)
         // if (onlineAdmins.length > 0) {
         //     // Randomly select an online admin recipient
         //      adminRecipientId = onlineAdmins[Math.floor(Math.random() * onlineAdmins.length)];
@@ -244,7 +243,6 @@ const findChats = async (req, res) => {
 const regenerateChat = async(req, res) =>{
     const { chatId } = req.params;
     const {user_id}   = req.user
-        console.log("getting here ")
     try {
          // Find the chat by ID
       const chat = await Chat.findById(chatId);
